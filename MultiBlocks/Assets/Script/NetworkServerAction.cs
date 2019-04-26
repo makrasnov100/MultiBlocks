@@ -60,11 +60,12 @@ public class OnConnect : NetworkServerAction
     {
         //DATA FORMAT: OnConnect|
 
-        Debug.Log("Player: (" + data[1] + ") has connected with id - " + data[1]);
+        Debug.Log("Player: (" + cnnId + ") has connected");
         ServerPlayer sp = null;
 
         //Add player to storage
-        sp = new ServerPlayer(cnnId);
+        server.curSpawnPos = new Vector3(server.curSpawnPos.x + 2, server.curSpawnPos.y, server.curSpawnPos.z);
+        sp = new ServerPlayer(cnnId, server.curSpawnPos);
         addUser(server.clients, server.clientIdxs, sp); 
 
         //Tells joining player about itself
@@ -78,7 +79,7 @@ public class OnConnect : NetworkServerAction
         server.Send(msg2, server.GetReliableChannel(), cnnId);
 
         //Tell old players about new player
-        string msg3 = "OnNewPlayers|" + cnnId + "," + sp.GetStringTransform();
+        string msg3 = "OnNewPlayers|" + cnnId + "|" + sp.GetStringTransform();
         server.Send(msg3, server.GetReliableChannel());
     }
 }

@@ -42,10 +42,10 @@ public class Client : MonoBehaviour
     {
         //Create used data methods
         methods.Add("OnPlayerSetup", new OnPlayerSetup(this));                                 //Server told client their player information and map
-        //methods.Add("PlayerMove", new PlayerMove(this));                                       //Server told client a player has moved
-        //methods.Add("OnNewPlayers", new OnNewPlayers(this));                                   //Server told client new player information
-        //methods.Add("OnLoadExistingPlayers", new OnLoadExistingPlayers(this));                 //Server telling joining player about old players
-        //methods.Add("OnOtherPlayerDisconnect", new OnOtherPlayerDisconnect(this));             //Server telling others about a leaving player
+        methods.Add("PlayerMove", new PlayerMove(this));                                       //Server told client a player has moved
+        methods.Add("OnNewPlayers", new OnNewPlayers(this));                                   //Server told client new player information
+        methods.Add("OnLoadExistingPlayers", new OnLoadExistingPlayers(this));                 //Server telling joining player about old players
+        methods.Add("OnOtherPlayerDisconnect", new OnOtherPlayerDisconnect(this));             //Server telling others about a leaving player
 
         Connect();
     }

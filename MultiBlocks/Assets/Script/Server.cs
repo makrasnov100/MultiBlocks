@@ -33,6 +33,9 @@ public class Server : MonoBehaviour
     //Messages Dictionary
     public Dictionary<string, NetworkServerAction> methods = new Dictionary<string, NetworkServerAction>();
 
+    //Map Settings
+    public Vector3 curSpawnPos = new Vector3(-5, 2, 0);
+
     // Start is called before the first frame update
     void Start()
     {
@@ -101,6 +104,7 @@ public class Server : MonoBehaviour
                     break;
                 case NetworkEventType.ConnectEvent:
                     Debug.Log("Player " + connectionId + " has connected.");
+                    methods["OnConnect"].PerformAction(null, connectionId);
                     break;
                 case NetworkEventType.DisconnectEvent:
                     Debug.Log("Player " + connectionId + " has disconnected.");

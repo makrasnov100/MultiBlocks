@@ -54,19 +54,18 @@ public class OnPlayerSetup : NetworkClientAction
         Debug.Log("Starting Player Setup...");
 
         //Set connection ID
-        string[] playerInfo = data[2].Split(',');
+        string[] playerInfo = data[1].Split(',');
         client.SetOurClientID(int.Parse(playerInfo[0]));
         Debug.Log("Our Client ID is : " + client.GetOurClientID());
 
         //Create and store refernce to player
         GameObject curPlayerRef = GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerInfo[1]), float.Parse(playerInfo[2]), float.Parse(playerInfo[3])), new Quaternion());
         ClientPlayer cp = new ClientPlayer(curPlayerRef);
+        curPlayerRef.GetComponent<MovementController>().client = client;
+
         cp.playerRef.name = "myPlayer";
         client.SetOurPlayer(cp);
         client.players.Add(int.Parse(playerInfo[0]), cp);
-
-        //Add movement controller to client
-        //client.gameObject.AddComponent<PlayerMoveScript>().SetPlayerObject(cp.GetPlayerRef());
     }
 }
 
@@ -76,7 +75,7 @@ public class OnNewPlayers : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT : OnNewPlayers|cnnId|playerPosx,playerPosy,playerPosC
+        //DATA FORMAT : OnNewPlayers|cnnId|playerPosX,playerPosY,playerPosZ,playerRot
 
         if (int.Parse(data[1]) == client.GetOurClientID()) //If it is our player, return
             return;
@@ -84,6 +83,7 @@ public class OnNewPlayers : NetworkClientAction
         string[] playerPos = data[2].Split(',');
         //Add the foreign player object to scene
         ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerPos[0]), float.Parse(playerPos[1]), float.Parse(playerPos[2])), new Quaternion()));
+        cp.playerRef.GetComponent<MovementController>().enabled = false;
         client.players.Add(int.Parse(data[1]), cp);
     }
 }
@@ -106,6 +106,7 @@ public class OnLoadExistingPlayers : NetworkClientAction
 
             //Add the foreign player object to scene    
             ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab));
+            cp.playerRef.GetComponent<MovementController>().enabled = false;
             cp.SetTransform(curUser[1], curUser[2], curUser[3], curUser[4]);
             client.players.Add(int.Parse(curUser[0]), cp);
         }

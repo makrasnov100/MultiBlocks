@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 [Serializable]
 public class ServerPlayer
@@ -14,12 +15,12 @@ public class ServerPlayer
     private float positionZ;    
     private float rotationZ;
 
-    public ServerPlayer(int connectionId)
+    public ServerPlayer(int connectionId, Vector3 spawnPoint)
     {
         this.connectionId = connectionId;
-        this.positionX = 0f;
-        this.positionY = 0f;
-        this.positionZ = 0f;
+        this.positionX = spawnPoint.x;
+        this.positionY = spawnPoint.y;
+        this.positionZ = spawnPoint.z;
         this.rotationZ = 0f;
     }
     public void SetTransform(string x, string y, string z, string rz)

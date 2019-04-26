@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class MovementController : MonoBehaviour
 {
+    //Movement Tracking
+    Vector3 pastPos;
+    float pastRot;
 
     //Movement
     public float playerSpeed;
@@ -19,19 +22,31 @@ public class MovementController : MonoBehaviour
     public Rigidbody rb;
     public GameObject body;
     public GameObject camPivot;
+    public Client client;
 
     private void Start()
     {
+        pastPos = transform.position;
+        pastRot = transform.eulerAngles.y;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
-        KeyboardInputCheck();
+        bool isMoved = KeyboardInputCheck();
         MouseInputCheck();
+
+        //Send movement update if player moved
+        if (isMoved)
+        {
+            Vector3 newPos = gameObject.transform.position;
+            float newRot = gameObject.transform.eulerAngles.y;
+            client.Send("PlayerMove|" + newPos.x + "," + newPos.y + "," + newPos.z + "," + newRot, client.GetUnreliableChannel());
+        }
+
     }
 
-    void KeyboardInputCheck()
+    bool KeyboardInputCheck()
     {
 
         //Check for jump command
@@ -84,6 +99,17 @@ public class MovementController : MonoBehaviour
                 body.transform.eulerAngles = newRot;
             }
         }
+
+        //Check if player has moved or rotated
+        bool isMoved = false;
+        if (Vector3.Distance(pastPos, transform.position) > .001 || pastRot != transform.eulerAngles.y)
+        {
+            pastPos = transform.position;
+            pastRot = transform.eulerAngles.y;
+            isMoved = true;
+        }
+
+        return isMoved;
     }
 
     void MouseInputCheck()
@@ -99,7 +125,6 @@ public class MovementController : MonoBehaviour
             if (camPivotVer > 200)
                 camPivotVer = -(360 - camPivotVer);
             camPivot.transform.eulerAngles = new Vector3(Mathf.Clamp(camPivotVer, -80f, 80f), camPivotHor, 0);
-            Debug.Log(camPivot.transform.eulerAngles);
         }
        
         //Zoom
