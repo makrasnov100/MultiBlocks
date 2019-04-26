@@ -84,6 +84,7 @@ public class OnNewPlayers : NetworkClientAction
         //Add the foreign player object to scene
         ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerPos[0]), float.Parse(playerPos[1]), float.Parse(playerPos[2])), new Quaternion()));
         cp.playerRef.GetComponent<MovementController>().enabled = false;
+        cp.playerRef.GetComponentInChildren<Camera>().enabled = false;
         client.players.Add(int.Parse(data[1]), cp);
     }
 }
@@ -107,6 +108,7 @@ public class OnLoadExistingPlayers : NetworkClientAction
             //Add the foreign player object to scene    
             ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab));
             cp.playerRef.GetComponent<MovementController>().enabled = false;
+            cp.playerRef.GetComponentInChildren<Camera>().enabled = false;
             cp.SetTransform(curUser[1], curUser[2], curUser[3], curUser[4]);
             client.players.Add(int.Parse(curUser[0]), cp);
         }

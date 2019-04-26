@@ -28,7 +28,7 @@ public class MovementController : MonoBehaviour
     {
         pastPos = transform.position;
         pastRot = transform.eulerAngles.y;
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
