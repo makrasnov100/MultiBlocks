@@ -4,25 +4,57 @@ using UnityEngine;
 
 public class MovementController : MonoBehaviour
 {
+
+    //Movement
     public float playerSpeed;
     public float rotationSpeed;
     public float jumpPower;
+    //Rotation
+    public float horizontalRotateSpeed;
+    public float verticalRotateSpeed;
+    //Zoom
+    public float zoomSpeed;
 
+    //References
     public Rigidbody rb;
     public GameObject body;
+    public GameObject camPivot;
+
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+    }
 
     void Update()
     {
         KeyboardInputCheck();
+        MouseInputCheck();
     }
 
     void KeyboardInputCheck()
     {
+
+        //Check for jump command
+        if (Input.GetKeyDown(KeyCode.Space))
+            if (rb)
+                rb.AddForce(body.transform.up * rb.mass * jumpPower);
+
+        //Check for ESC
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (Cursor.lockState == CursorLockMode.None)
+                Cursor.lockState = CursorLockMode.Locked;
+            else
+                Cursor.lockState = CursorLockMode.None;
+
+        }
+
+
+        //Check current input of WASD keys (if holding down)
         float forceAmt = 0;
         Vector3 curForce = Vector3.zero;
         float rotationAmt = 0;
 
-        //Check current input of WASD keys (if holding down)
         if (Input.GetKey(KeyCode.W))
             forceAmt += 1;
         if (Input.GetKey(KeyCode.A))
@@ -31,12 +63,6 @@ public class MovementController : MonoBehaviour
             forceAmt -= 1;
         if (Input.GetKey(KeyCode.D))
             rotationAmt += 1f;
-
-        //Check for jump command
-        if (Input.GetKeyDown(KeyCode.Space))
-            if (rb)
-                rb.AddForce(body.transform.up * rb.mass * jumpPower);
-
 
         curForce = body.transform.forward * forceAmt;
 
@@ -57,6 +83,31 @@ public class MovementController : MonoBehaviour
                 newRot.y += rotationAmt * Time.deltaTime * rotationSpeed;
                 body.transform.eulerAngles = newRot;
             }
+        }
+    }
+
+    void MouseInputCheck()
+    {
+        //Rotation
+        if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+        {
+            float camPivotHor = camPivot.transform.eulerAngles.y;
+            float camPivotVer = camPivot.transform.eulerAngles.x;
+            camPivotHor = camPivotHor + Input.GetAxis("Mouse X") * horizontalRotateSpeed;
+            camPivotVer = camPivotVer + (-Input.GetAxis("Mouse Y") * verticalRotateSpeed);
+            camPivotVer = camPivotVer % 360;
+            if (camPivotVer > 200)
+                camPivotVer = -(360 - camPivotVer);
+            camPivot.transform.eulerAngles = new Vector3(Mathf.Clamp(camPivotVer, -80f, 80f), camPivotHor, 0);
+            Debug.Log(camPivot.transform.eulerAngles);
+        }
+       
+        //Zoom
+        if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        {
+            float pivotScale = camPivot.transform.localScale.y + (-Input.GetAxis("Mouse ScrollWheel") * zoomSpeed);
+            pivotScale = Mathf.Min(5f, Mathf.Max(1f, pivotScale));
+            camPivot.transform.localScale = new Vector3(pivotScale, pivotScale, pivotScale);
         }
     }
 }
