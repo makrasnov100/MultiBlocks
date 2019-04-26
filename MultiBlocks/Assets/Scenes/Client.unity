@@ -2101,7 +2101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 4230825429026660175, guid: f5a1fd72882a8404abcef03f2ac3eebc,
     type: 3}
-  ipToConnectTo: 127.0.0.1
+  ipToConnectTo: 192.168.1.170
 --- !u!1 &507856287
 GameObject:
   m_ObjectHideFlags: 0
@@ -6074,7 +6074,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1320227806
 Transform:
   m_ObjectHideFlags: 0

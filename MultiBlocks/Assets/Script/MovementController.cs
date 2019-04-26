@@ -28,7 +28,7 @@ public class MovementController : MonoBehaviour
     {
         pastPos = transform.position;
         pastRot = transform.eulerAngles.y;
-        //Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
@@ -40,7 +40,7 @@ public class MovementController : MonoBehaviour
         if (isMoved)
         {
             Vector3 newPos = gameObject.transform.position;
-            float newRot = gameObject.transform.eulerAngles.y;
+            float newRot = body.transform.eulerAngles.y;
             client.Send("PlayerMove|" + newPos.x + "," + newPos.y + "," + newPos.z + "," + newRot, client.GetUnreliableChannel());
         }
 
@@ -102,10 +102,10 @@ public class MovementController : MonoBehaviour
 
         //Check if player has moved or rotated
         bool isMoved = false;
-        if (Vector3.Distance(pastPos, transform.position) > .001 || pastRot != transform.eulerAngles.y)
+        if (Vector3.Distance(pastPos, transform.position) > .001 || pastRot != body.transform.eulerAngles.y)
         {
             pastPos = transform.position;
-            pastRot = transform.eulerAngles.y;
+            pastRot = body.transform.eulerAngles.y;
             isMoved = true;
         }
 

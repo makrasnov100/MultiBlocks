@@ -27,7 +27,7 @@ public class PlayerMove : NetworkClientAction
         {
             string[] splitData = data[i].Split(',');
             if (int.Parse(splitData[0]) != client.GetOurClientID())
-                client.players[int.Parse(splitData[0])].SetTransform(splitData[1], splitData[2], splitData[3], splitData[2]);
+                client.players[int.Parse(splitData[0])].SetTransform(splitData[1], splitData[2], splitData[3], splitData[4]);
         }
     }
 }
@@ -85,6 +85,7 @@ public class OnNewPlayers : NetworkClientAction
         ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerPos[0]), float.Parse(playerPos[1]), float.Parse(playerPos[2])), new Quaternion()));
         cp.playerRef.GetComponent<MovementController>().enabled = false;
         cp.playerRef.GetComponentInChildren<Camera>().enabled = false;
+        GameObject.Destroy(cp.playerRef.GetComponent<Rigidbody>());
         client.players.Add(int.Parse(data[1]), cp);
     }
 }
@@ -109,6 +110,7 @@ public class OnLoadExistingPlayers : NetworkClientAction
             ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab));
             cp.playerRef.GetComponent<MovementController>().enabled = false;
             cp.playerRef.GetComponentInChildren<Camera>().enabled = false;
+            GameObject.Destroy(cp.playerRef.GetComponent<Rigidbody>());
             cp.SetTransform(curUser[1], curUser[2], curUser[3], curUser[4]);
             client.players.Add(int.Parse(curUser[0]), cp);
         }
