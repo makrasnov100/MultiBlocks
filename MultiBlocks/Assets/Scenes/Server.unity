@@ -223,6 +223,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0af25447293e724428e746ef33a0402f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clients: []
+  curSpawnPos: {x: -5, y: 2, z: -50}
 --- !u!4 &1651486037
 Transform:
   m_ObjectHideFlags: 0

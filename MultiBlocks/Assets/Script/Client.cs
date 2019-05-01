@@ -29,6 +29,9 @@ public class Client : MonoBehaviour
     private bool isConnected = false;
     private byte error;
 
+    //Map
+    public MapController mapCont;
+
     //Players Storage
     private int ourClientID;
     public ClientPlayer ourPlayer;

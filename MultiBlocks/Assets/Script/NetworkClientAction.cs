@@ -66,6 +66,8 @@ public class OnPlayerSetup : NetworkClientAction
         cp.playerRef.name = "myPlayer";
         client.SetOurPlayer(cp);
         client.players.Add(int.Parse(playerInfo[0]), cp);
+
+        client.mapCont.StartGeneration(true);
     }
 }
 
