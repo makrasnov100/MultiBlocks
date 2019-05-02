@@ -46,26 +46,6 @@ public class MapController : MonoBehaviour
         //UpdateTower();
     }
 
-    //void UpdateTower()
-    //{
-    //    if (Random.Range(0f,1f) > 0.1) //TODO: Update the graphics to be controlled with audio source
-    //    {
-    //        int objectsToGenerate = blocksGenerated;//Random.Range(blocksGenerated[0], blocksGenerated[1] + 1);
-
-    //        for (int i = 0; i < objectsToGenerate; i++)
-    //        {
-    //            int curXIdx = Random.Range(0, towerSize);
-    //            int curZIdx = Random.Range(0, towerSize);
-
-    //            if (!cellTaken[curZIdx][curXIdx])
-    //            {
-    //                Instantiate(BuildUpBlock, towerCenter + new Vector3((curXIdx - (towerSize / 2)) * sizePerBlock, curLevel * sizePerBlock, (curZIdx - (towerSize / 2)) * sizePerBlock), Quaternion.identity, transform);
-    //            }
-
-    //        }
-    //    }
-    //}
-
     IEnumerator LayerTimer()
     {
 
@@ -99,15 +79,19 @@ public class MapController : MonoBehaviour
         }
 
         //If not the last level calculate outgoing points
-        if (curLevel != peakLevel)
+        if (peakLevel != 0 && curLevel != peakLevel) //first condition protects from infinite loop
         {
-            outIdx[0] = Random.Range(0, towerSize);
-            outIdx[1] = Random.Range(0, towerSize);
+            while (outIdx[0] == inIdx[0] || outIdx[1] == inIdx[1])
+            {
+                outIdx[0] = Random.Range(0, towerSize);
+                outIdx[1] = Random.Range(0, towerSize);
+            }
         }
 
         //Create the level manager and its floors
         GameObject curLMGO = Instantiate(LevelManager, transform);
         LevelManager curLM = curLMGO.GetComponent<LevelManager>();
-        curLM.GenerateFloor(towerSize, curLevel, secPerLevel, tilePrefab, towerCenter, sizePerBlock, inIdx, outIdx);
+        curLM.GenerateFloor(towerSize, curLevel, secPerLevel, .5f ,tilePrefab, towerCenter, sizePerBlock, inIdx, outIdx);
+        curLM.PlanFloorRemoval(255);
     }
 }

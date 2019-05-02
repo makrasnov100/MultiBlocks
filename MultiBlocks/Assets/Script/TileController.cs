@@ -12,11 +12,11 @@ public class TileController : MonoBehaviour
     {
         anim = GetComponent<Animator>();
 
-        if (anim)
-        {
+        //if (anim)
+        //{
             this.timeToDestroy = timeToDestroy;
             StartCoroutine(DestroyTile());
-        }
+        //}
     }
 
 
