@@ -14,7 +14,7 @@ public class LevelManager : MonoBehaviour
 
     Stack<TileController> tilesToRemove = new Stack<TileController>();
 
-    public void GenerateFloor(int towerSize, int curLvl, float timeToComplete, float difficultyThreshold, GameObject floorTile, Vector3 layerCenter, int sizePerBlock, int[] inPoint, int[] outPoint)
+    public void GenerateFloor(int towerSize, int curLvl, float timeToComplete, float difficultyThreshold, GameObject floorTile, Vector3 layerCenter, int sizePerBlock, int sizePerLevel, int[] inPoint, int[] outPoint)
     {
 
         this.curLvl = curLvl;
@@ -33,7 +33,7 @@ public class LevelManager : MonoBehaviour
             {
                 GameObject curGO = Instantiate(floorTile,
                                               layerCenter + new Vector3((x - (towerSize / 2)) * sizePerBlock,
-                                                                         curLvl * sizePerBlock,
+                                                                         curLvl * (sizePerBlock * sizePerLevel),
                                                                         (z - (towerSize / 2)) * sizePerBlock),
                                               Quaternion.identity, transform);
 

@@ -12,11 +12,15 @@ public class TileController : MonoBehaviour
     {
         anim = GetComponent<Animator>();
 
-        //if (anim)
-        //{
+        if (anim)
+        {
             this.timeToDestroy = timeToDestroy;
+
+            //Start despawn animation
+            anim.SetBool("IsDead", true);
+
             StartCoroutine(DestroyTile());
-        //}
+        }
     }
 
 

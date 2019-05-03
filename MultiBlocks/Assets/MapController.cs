@@ -20,6 +20,7 @@ public class MapController : MonoBehaviour
     //Map Generation Settings
     public int towerSize;
     public int sizePerBlock;
+    public int sizePerLevel;
     public Vector3 towerCenter;
     public float secPerLevel;
     public int peakLevel;
@@ -91,7 +92,7 @@ public class MapController : MonoBehaviour
         //Create the level manager and its floors
         GameObject curLMGO = Instantiate(LevelManager, transform);
         LevelManager curLM = curLMGO.GetComponent<LevelManager>();
-        curLM.GenerateFloor(towerSize, curLevel, secPerLevel, .5f ,tilePrefab, towerCenter, sizePerBlock, inIdx, outIdx);
+        curLM.GenerateFloor(towerSize, curLevel, secPerLevel, .5f ,tilePrefab, towerCenter, sizePerBlock, sizePerLevel, inIdx, outIdx);
         curLM.PlanFloorRemoval(255);
     }
 }
