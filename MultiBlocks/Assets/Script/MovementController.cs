@@ -23,12 +23,15 @@ public class MovementController : MonoBehaviour
     public GameObject body;
     public GameObject camPivot;
     public Client client;
+    public bool isGrounded;
+    public float distToGround;
 
     private void Start()
     {
         pastPos = transform.position;
         pastRot = transform.eulerAngles.y;
         Cursor.lockState = CursorLockMode.Locked;
+        distToGround = GetComponentInChildren<Collider>().bounds.extents.y;
     }
 
     void Update()
@@ -43,14 +46,16 @@ public class MovementController : MonoBehaviour
             float newRot = body.transform.eulerAngles.y;
             client.Send("PlayerMove|" + newPos.x + "," + newPos.y + "," + newPos.z + "," + newRot, client.GetUnreliableChannel());
         }
-
     }
+
+ 
 
     bool KeyboardInputCheck()
     {
 
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, distToGround + 0.1f);
         //Check for jump command
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true)
             if (rb)
                 rb.AddForce(body.transform.up * rb.mass * jumpPower);
 
@@ -66,18 +71,24 @@ public class MovementController : MonoBehaviour
 
 
         //Check current input of WASD keys (if holding down)
-        float forceAmt = 0;
+        float forceAmtX = 0;
+        float forceAmtZ = 0;
+
+        Vector3 v3; 
+
         Vector3 curForce = Vector3.zero;
         float rotationAmt = 0;
 
-        if (Input.GetKey(KeyCode.W))
-            forceAmt += 1;
-        if (Input.GetKey(KeyCode.A))
-            rotationAmt -= 1f;
-        if (Input.GetKey(KeyCode.S))
-            forceAmt -= 1;
-        if (Input.GetKey(KeyCode.D))
-            rotationAmt += 1f;
+        if (Input.GetKey(KeyCode.W) && isGrounded == true)
+            forceAmtX += 1;
+        if (Input.GetKey(KeyCode.A) && isGrounded == true)
+            forceAmtZ -= 1;
+        if (Input.GetKey(KeyCode.S) && isGrounded == true)
+            forceAmtX -= 1;
+        if (Input.GetKey(KeyCode.D) && isGrounded == true)
+            forceAmtX += 1f;
+
+       float  forceAmt = forceAmtX + forceAmtZ;
 
         curForce = body.transform.forward * forceAmt;
 
@@ -125,6 +136,7 @@ public class MovementController : MonoBehaviour
             if (camPivotVer > 200)
                 camPivotVer = -(360 - camPivotVer);
             camPivot.transform.eulerAngles = new Vector3(Mathf.Clamp(camPivotVer, -80f, 80f), camPivotHor, 0);
+            body.transform.eulerAngles = new Vector3(0, camPivotHor, 0);
         }
        
         //Zoom
