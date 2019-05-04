@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1f34551a30766834d97176d9b7884412, type: 2}
+  - {fileID: 2100000, guid: c4eed0ced2837c940a3d6d80b10be4f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -105,7 +105,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8584019517707157194}
-  - component: {fileID: 3908365590315757626}
+  - component: {fileID: 4683724225609230344}
   m_Layer: 0
   m_Name: TileBlock
   m_TagString: Untagged
@@ -128,25 +128,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &3908365590315757626
-Animator:
-  serializedVersion: 3
+--- !u!114 &4683724225609230344
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7031228831027790220}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 02b38cf5243de024aa294c9b4950527b, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69511018a7a6c3a4aa4cd7ddef51e85d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshRender: {fileID: 777770499128572106}
 --- !u!1001 &131203610162821721
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -154,11 +148,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8584019517707157194}
     m_Modifications:
-    - target: {fileID: 4654653443821165556, guid: 8d2fb801551dcfb46993d0047794ac46,
-        type: 3}
-      propertyPath: m_Name
-      value: Tile
-      objectReference: {fileID: 0}
     - target: {fileID: 913605197700261215, guid: 8d2fb801551dcfb46993d0047794ac46,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -213,6 +202,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4654653443821165556, guid: 8d2fb801551dcfb46993d0047794ac46,
+        type: 3}
+      propertyPath: m_Name
+      value: Tile
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d2fb801551dcfb46993d0047794ac46, type: 3}

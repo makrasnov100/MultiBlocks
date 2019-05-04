@@ -14,7 +14,8 @@ public class LevelManager : MonoBehaviour
 
     Stack<TileController> tilesToRemove = new Stack<TileController>();
 
-    public void GenerateFloor(int towerSize, int curLvl, float timeToComplete, float difficultyThreshold, GameObject floorTile, Vector3 layerCenter, int sizePerBlock, int sizePerLevel, int[] inPoint, int[] outPoint)
+
+    public void GenerateFloor(int towerSize, int curLvl, float timeToComplete, float difficultyThreshold, Vector3 layerCenter, int sizePerBlock, int sizePerLevel, int[] inPoint, int[] outPoint)
     {
 
         this.curLvl = curLvl;
@@ -23,23 +24,17 @@ public class LevelManager : MonoBehaviour
         this.difficultyThreshold = difficultyThreshold;
         countRemoveIter = 0;
 
-        StartCoroutine(LevelDeathCounter());
-
         //Populating initial cell list  
         floorTiles = new List<TileController>();
         for (int z = 0; z < towerSize; z++)
         {
             for (int x = 0; x < towerSize; x++)
             {
-                GameObject curGO = Instantiate(floorTile,
-                                              layerCenter + new Vector3((x - (towerSize / 2)) * sizePerBlock,
-                                                                         curLvl * (sizePerBlock * sizePerLevel),
-                                                                        (z - (towerSize / 2)) * sizePerBlock),
-                                              Quaternion.identity, transform);
+                Vector3 pos = layerCenter + new Vector3((x - (towerSize / 2)) * sizePerBlock,
+                                                         curLvl * (sizePerBlock * sizePerLevel),
+                                                        (z - (towerSize / 2)) * sizePerBlock);
 
-                TileController curGOControl = curGO.AddComponent<TileController>();
-
-                floorTiles.Add(curGOControl);
+                floorTiles.Add(MapController.Instance.SpawnFromTilePool(pos));
             }
         }
 
@@ -48,7 +43,7 @@ public class LevelManager : MonoBehaviour
 
     public void PlanFloorRemoval(int seed)
     {
-        //Set the ranodm seed based on server input, count of despawn commands and other variables?
+        //Set the random seed based on server input, count of despawn commands and other variables?
         //Random.InitState(seed);
 
         //Choose blocks to despawn and start their despwn animation with correct time to despawn (should always be >1f seconds) 
@@ -63,16 +58,16 @@ public class LevelManager : MonoBehaviour
             ConstantTimeTileRemove(curIdx);
         }
 
-        StartCoroutine(LevelDegradation(despawnsASec));
         countRemoveIter++;
     }
 
     IEnumerator LevelDeathCounter()
     {
-        yield return new WaitForSeconds(timeToComplete);
-
-        foreach (TileController tile in floorTiles)
-            tile.Despawn(4f);
+        //Remove all remaining tiles gradually
+        for (int i = floorTiles.Count-1; i >= 0; i--)
+        {
+            floorTiles[i].Despawn(4f);
+        }
 
         //Wait for blocks to finish despawn animation
         yield return new WaitForSeconds(5f);
@@ -98,13 +93,28 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator LevelDegradation(float despawnsASec)
     {
-        while (tilesToRemove.Count != 0)
+        while (tilesToRemove.Count > despawnsASec)
         {
             for (int i = 0; i < despawnsASec; i++)
             {
-                tilesToRemove.Pop().Despawn(3f);
+                tilesToRemove.Pop().Despawn(4f);
             }
             yield return new WaitForSeconds(1f);
         }
+        //On the last round remove remaining tiles
+        while (tilesToRemove.Count != 0)
+        {
+            tilesToRemove.Pop().Despawn(4f);
+        }
+        StartCoroutine(LevelDeathCounter());
+    }
+
+    public void BeginDegradation()
+    {
+        //Choose blocks to despawn and start their despwn animation with correct time to despawn (should always be >1f seconds) 
+        int amountToDespawn = (int)((towerSize * towerSize) * Mathf.Clamp(difficultyThreshold, 0, 1));
+        int despawnsASec = Mathf.CeilToInt(amountToDespawn / Mathf.Floor(timeToComplete));
+
+        StartCoroutine(LevelDegradation(despawnsASec));
     }
 }
