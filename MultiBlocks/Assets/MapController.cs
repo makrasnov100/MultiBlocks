@@ -67,12 +67,15 @@ public class MapController : MonoBehaviour
         //Make sure size of tower is even
         if (towerSize % 2 != 0)
             towerSize++;
+
+        //Make sure tower size is large enough for elevators
+        towerSize = Mathf.Max(10, towerSize);
     }
 
     IEnumerator LayerTimer()
     {
 
-        while (isStarted && curLevel-levelsPresentAtOnce <= peakLevel)
+        while (isStarted && curLevel-levelsPresentAtOnce < peakLevel)
         {
             levels[curLevel - levelsPresentAtOnce].BeginDegradation();
             yield return new WaitForSeconds(secPerLevel);
@@ -93,25 +96,34 @@ public class MapController : MonoBehaviour
         StartCoroutine(LayerTimer());
     }
 
+    int[] latestOutIdx = { -1, -1 };
     void CreateNewLevel()
     {
         int[] outIdx = { -1, -1 };
         int[] inIdx = { -1, -1 };
 
         //If not first level calculate incoming points
-        if (curLevel != 0)
+        if (curLevel >= 0)
         {
-            inIdx[0] = Random.Range(0, towerSize);
-            inIdx[1] = Random.Range(0, towerSize);
+            if (latestOutIdx[0] == -1 || latestOutIdx[1] == -1)
+            {
+                inIdx[0] = Random.Range(1, towerSize - 2);
+                inIdx[1] = Random.Range(1, towerSize - 2);
+            }
+            else
+            {
+                inIdx[0] = latestOutIdx[0];
+                inIdx[1] = latestOutIdx[1];
+            }
         }
 
         //If not the last level calculate outgoing points
         if (peakLevel != 0 && curLevel != peakLevel) //first condition protects from infinite loop
         {
-            while (outIdx[0] == inIdx[0] || outIdx[1] == inIdx[1])
+            while (Mathf.Abs(outIdx[0] - inIdx[0]) <= 1 || Mathf.Abs(outIdx[1] - inIdx[1]) <= 1 || outIdx[0] == -1 || outIdx[1] == -1)
             {
-                outIdx[0] = Random.Range(0, towerSize);
-                outIdx[1] = Random.Range(0, towerSize);
+                outIdx[0] = Random.Range(1, towerSize-2);
+                outIdx[1] = Random.Range(1, towerSize-2);
             }
         }
 
@@ -121,6 +133,9 @@ public class MapController : MonoBehaviour
         curLM.GenerateFloor(towerSize, curLevel, secPerLevel, .5f, towerCenter, sizePerBlock, sizePerLevel, inIdx, outIdx);
         curLM.PlanFloorRemoval(255);
         levels.Add(curLM);
+
+        latestOutIdx[0] = outIdx[0];
+        latestOutIdx[1] = outIdx[1];
     }
 
     public TileController SpawnFromTilePool(Vector3 pos)

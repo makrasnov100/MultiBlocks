@@ -3007,7 +3007,7 @@ MonoBehaviour:
   sizePerBlock: 2
   sizePerLevel: 14
   towerCenter: {x: 0, y: 2, z: 0}
-  secPerLevel: 10
+  secPerLevel: 30
   peakLevel: 5
 --- !u!4 &655427754
 Transform:

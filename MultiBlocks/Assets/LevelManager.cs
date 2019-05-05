@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public GameObject levelElevator;
+
     int curLvl;
     int towerSize;
     int countRemoveIter;
@@ -26,10 +28,36 @@ public class LevelManager : MonoBehaviour
 
         //Populating initial cell list  
         floorTiles = new List<TileController>();
+        bool inPointStarted = false;
+        bool outPointStarted = false;
         for (int z = 0; z < towerSize; z++)
         {
             for (int x = 0; x < towerSize; x++)
             {
+                //Check if hole needed for incoming elevator (since its a 2x2 hole it will 1 block to the right and two below)
+                if (inPoint[1] == z && inPoint[0] == x)
+                {
+                    if (!inPointStarted)
+                    {
+                        inPointStarted = true;
+                        inPoint[1]++;
+                    }
+                    x += 1;
+                    continue;
+                }
+
+                // Check if hole needed for outgoing elevator (since its a 2x2 hole it will 1 block to the right and two below)
+                if (outPoint[1] == z && outPoint[0] == x)
+                {
+                    if (!outPointStarted)
+                    {
+                        outPointStarted = true;
+                        outPoint[1]++;
+                    }
+                    x += 1;
+                    continue;
+                }
+
                 Vector3 pos = layerCenter + new Vector3((x - (towerSize / 2)) * sizePerBlock,
                                                          curLvl * (sizePerBlock * sizePerLevel),
                                                         (z - (towerSize / 2)) * sizePerBlock);
@@ -37,8 +65,24 @@ public class LevelManager : MonoBehaviour
                 floorTiles.Add(MapController.Instance.SpawnFromTilePool(pos));
             }
         }
+        //Reset hole positions to original values
+        if(outPoint[1] != -1)
+            outPoint[1]--;
+        if(inPoint[1] != -1)
+            inPoint[1]--;
 
-        //TODO: create incoming and outgoing fields
+        //Instatiate elevator for level
+        if (outPoint[0] != -1 && outPoint[1] != -1)
+        {
+            Vector3 pos = layerCenter + new Vector3(((outPoint[0] - (towerSize / 2)) * sizePerBlock) + (sizePerBlock * .5f), //+sizePerBlock to position in the middle of hole
+                                                     curLvl * (sizePerBlock * sizePerLevel) + ((sizePerBlock * sizePerLevel)/2),
+                                                    ((outPoint[1] - (towerSize / 2)) * sizePerBlock) + (sizePerBlock * .5f));
+
+            Vector3 scale = new Vector3(sizePerBlock * 2, sizePerLevel * sizePerBlock, sizePerBlock * 2);
+
+            GameObject curElevator = Instantiate(levelElevator, pos, Quaternion.identity, transform);
+            curElevator.transform.localScale = scale;
+        }
     }
 
     public void PlanFloorRemoval(int seed)
