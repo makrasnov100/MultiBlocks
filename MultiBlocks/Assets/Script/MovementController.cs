@@ -72,9 +72,9 @@ public class MovementController : MonoBehaviour
 
         //Check current input of WASD keys (if holding down)
         float forceAmtX = 0;
-        float forceAmtZ = 0;
+       float forceAmtZ = 0;
 
-        Vector3 v3; 
+        
 
         Vector3 curForce = Vector3.zero;
         float rotationAmt = 0;
@@ -82,15 +82,16 @@ public class MovementController : MonoBehaviour
         if (Input.GetKey(KeyCode.W) && isGrounded == true)
             forceAmtX += 1;
         if (Input.GetKey(KeyCode.A) && isGrounded == true)
-            forceAmtZ -= 1;
+            forceAmtZ -= 1f;
         if (Input.GetKey(KeyCode.S) && isGrounded == true)
             forceAmtX -= 1;
         if (Input.GetKey(KeyCode.D) && isGrounded == true)
-            forceAmtX += 1f;
+            forceAmtZ += 1f;
 
-       float  forceAmt = forceAmtX + forceAmtZ;
+         float  forceAmt = forceAmtX + forceAmtZ;
 
         curForce = body.transform.forward * forceAmt;
+        
 
         if (rb)
         {
@@ -98,7 +99,7 @@ public class MovementController : MonoBehaviour
             if (forceAmt != 0)
             {
                 curForce = curForce.normalized * (Time.deltaTime * 100) * playerSpeed;
-                curVelocity.x = curForce.x;
+                curVelocity.x = curForce.x; 
                 curVelocity.z = curForce.z;
                 rb.velocity = curVelocity;
             }
