@@ -4,34 +4,35 @@ using UnityEngine;
 
 public class TileController : MonoBehaviour
 {
-    public Animator anim;
-
-    float timeToDestroy; //should always be >1f seconds
+    public MeshRenderer meshRender;
 
     public void Despawn(float timeToDestroy)
     {
-        anim = GetComponent<Animator>();
-
-        //if (anim)
-        //{
-            this.timeToDestroy = timeToDestroy;
-            StartCoroutine(DestroyTile());
-        //}
+        StartCoroutine(BlockDestruction(timeToDestroy));
     }
 
-
-    IEnumerator DestroyTile()
+    public IEnumerator BlockDestruction(float timeToDestroy)
     {
-        //Set animation speed based on time to destroy
+        float delay = Random.Range(0f, 1f);
+        yield return new WaitForSeconds(delay);
 
-        //Begin despawn color animation
+        float sectionTiming = (timeToDestroy - delay) / 3;
 
-        yield return new WaitForSeconds(timeToDestroy - 1f);
+        //Turn block yellow
+        meshRender.material.SetColor("_Color", Color.yellow);
+        yield return new WaitForSeconds(sectionTiming);
 
-        //Begin despawn drop animation
+        //Turn block orange
+        meshRender.material.SetColor("_Color", new Color(1, .5f, 0, 0));
+        yield return new WaitForSeconds(sectionTiming);
 
-        yield return new WaitForSeconds(1f); //TODO: make sure animation is exavtly 1 second
+        //Turn block red
+        meshRender.material.SetColor("_Color", Color.red);
+        yield return new WaitForSeconds(sectionTiming);
 
-        Destroy(gameObject);
+        //Destroy block
+        meshRender.material.SetColor("_Color", Color.magenta);
+        MapController.Instance.DespawnIntoTilePool(gameObject);
+
     }
 }

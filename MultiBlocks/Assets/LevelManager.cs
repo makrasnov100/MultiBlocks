@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public GameObject levelElevator;
+
     int curLvl;
     int towerSize;
     int countRemoveIter;
@@ -14,7 +16,8 @@ public class LevelManager : MonoBehaviour
 
     Stack<TileController> tilesToRemove = new Stack<TileController>();
 
-    public void GenerateFloor(int towerSize, int curLvl, float timeToComplete, float difficultyThreshold, GameObject floorTile, Vector3 layerCenter, int sizePerBlock, int[] inPoint, int[] outPoint)
+
+    public void GenerateFloor(int towerSize, int curLvl, float timeToComplete, float difficultyThreshold, Vector3 layerCenter, int sizePerBlock, int sizePerLevel, int[] inPoint, int[] outPoint)
     {
 
         this.curLvl = curLvl;
@@ -23,32 +26,68 @@ public class LevelManager : MonoBehaviour
         this.difficultyThreshold = difficultyThreshold;
         countRemoveIter = 0;
 
-        StartCoroutine(LevelDeathCounter());
-
         //Populating initial cell list  
         floorTiles = new List<TileController>();
+        bool inPointStarted = false;
+        bool outPointStarted = false;
         for (int z = 0; z < towerSize; z++)
         {
             for (int x = 0; x < towerSize; x++)
             {
-                GameObject curGO = Instantiate(floorTile,
-                                              layerCenter + new Vector3((x - (towerSize / 2)) * sizePerBlock,
-                                                                         curLvl * sizePerBlock,
-                                                                        (z - (towerSize / 2)) * sizePerBlock),
-                                              Quaternion.identity, transform);
+                //Check if hole needed for incoming elevator (since its a 2x2 hole it will 1 block to the right and two below)
+                if (inPoint[1] == z && inPoint[0] == x)
+                {
+                    if (!inPointStarted)
+                    {
+                        inPointStarted = true;
+                        inPoint[1]++;
+                    }
+                    x += 1;
+                    continue;
+                }
 
-                TileController curGOControl = curGO.AddComponent<TileController>();
+                // Check if hole needed for outgoing elevator (since its a 2x2 hole it will 1 block to the right and two below)
+                if (outPoint[1] == z && outPoint[0] == x)
+                {
+                    if (!outPointStarted)
+                    {
+                        outPointStarted = true;
+                        outPoint[1]++;
+                    }
+                    x += 1;
+                    continue;
+                }
 
-                floorTiles.Add(curGOControl);
+                Vector3 pos = layerCenter + new Vector3((x - (towerSize / 2)) * sizePerBlock,
+                                                         curLvl * (sizePerBlock * sizePerLevel),
+                                                        (z - (towerSize / 2)) * sizePerBlock);
+
+                floorTiles.Add(MapController.Instance.SpawnFromTilePool(pos));
             }
         }
+        //Reset hole positions to original values
+        if(outPoint[1] != -1)
+            outPoint[1]--;
+        if(inPoint[1] != -1)
+            inPoint[1]--;
 
-        //TODO: create incoming and outgoing fields
+        //Instatiate elevator for level
+        if (outPoint[0] != -1 && outPoint[1] != -1)
+        {
+            Vector3 pos = layerCenter + new Vector3(((outPoint[0] - (towerSize / 2)) * sizePerBlock) + (sizePerBlock * .5f), //+sizePerBlock to position in the middle of hole
+                                                     curLvl * (sizePerBlock * sizePerLevel) + ((sizePerBlock * sizePerLevel)/2),
+                                                    ((outPoint[1] - (towerSize / 2)) * sizePerBlock) + (sizePerBlock * .5f));
+
+            Vector3 scale = new Vector3(sizePerBlock * 2, sizePerLevel * sizePerBlock, sizePerBlock * 2);
+
+            GameObject curElevator = Instantiate(levelElevator, pos, Quaternion.identity, transform);
+            curElevator.transform.localScale = scale;
+        }
     }
 
     public void PlanFloorRemoval(int seed)
     {
-        //Set the ranodm seed based on server input, count of despawn commands and other variables?
+        //Set the random seed based on server input, count of despawn commands and other variables?
         //Random.InitState(seed);
 
         //Choose blocks to despawn and start their despwn animation with correct time to despawn (should always be >1f seconds) 
@@ -63,16 +102,16 @@ public class LevelManager : MonoBehaviour
             ConstantTimeTileRemove(curIdx);
         }
 
-        StartCoroutine(LevelDegradation(despawnsASec));
         countRemoveIter++;
     }
 
     IEnumerator LevelDeathCounter()
     {
-        yield return new WaitForSeconds(timeToComplete);
-
-        foreach (TileController tile in floorTiles)
-            tile.Despawn(4f);
+        //Remove all remaining tiles gradually
+        for (int i = floorTiles.Count-1; i >= 0; i--)
+        {
+            floorTiles[i].Despawn(4f);
+        }
 
         //Wait for blocks to finish despawn animation
         yield return new WaitForSeconds(5f);
@@ -98,13 +137,28 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator LevelDegradation(float despawnsASec)
     {
-        while (tilesToRemove.Count != 0)
+        while (tilesToRemove.Count > despawnsASec)
         {
             for (int i = 0; i < despawnsASec; i++)
             {
-                tilesToRemove.Pop().Despawn(3f);
+                tilesToRemove.Pop().Despawn(4f);
             }
             yield return new WaitForSeconds(1f);
         }
+        //On the last round remove remaining tiles
+        while (tilesToRemove.Count != 0)
+        {
+            tilesToRemove.Pop().Despawn(4f);
+        }
+        StartCoroutine(LevelDeathCounter());
+    }
+
+    public void BeginDegradation()
+    {
+        //Choose blocks to despawn and start their despwn animation with correct time to despawn (should always be >1f seconds) 
+        int amountToDespawn = (int)((towerSize * towerSize) * Mathf.Clamp(difficultyThreshold, 0, 1));
+        int despawnsASec = Mathf.CeilToInt(amountToDespawn / Mathf.Floor(timeToComplete));
+
+        StartCoroutine(LevelDegradation(despawnsASec));
     }
 }
