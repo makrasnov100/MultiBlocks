@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 using ZeroFormatter;
 using ZeroFormatter.Formatters;
 
+public enum ConnectionStatus {Connecting, Connected, Disconnected, Failed}
+
 public class Client : MonoBehaviour
 {
     //References
@@ -29,8 +31,9 @@ public class Client : MonoBehaviour
     private bool isConnected = false;
     private byte error;
 
-    //Map
+    //Controllers
     public MapController mapCont;
+    public UIManager uiCont;
 
     //Players Storage
     private int ourClientID;
@@ -70,6 +73,19 @@ public class Client : MonoBehaviour
         connectionTime = Time.time;
         Debug.Log("Attempting to connect to - " + ipToConnectTo);
         isConnected = true;
+
+        StartCoroutine(CheckConnection());
+    }
+
+    IEnumerator<WaitForSeconds> CheckConnection()
+    {
+        yield return new WaitForSeconds(5f);
+
+        if (!connectionId)
+        {
+            uiCont.SetConnnection(ConnectionStatus.Failed);
+            Disconnect();
+        }
     }
 
     ///[COMMUNICATION]
@@ -108,10 +124,12 @@ public class Client : MonoBehaviour
                     break;
                 case NetworkEventType.ConnectEvent:
                     connectionTime = Time.time;
+                    uiCont.SetConnnection(ConnectionStatus.Connected);
                     Debug.Log("Connected to server... Took " + connectionTime);
                     break;
                 case NetworkEventType.DisconnectEvent:
                     SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+                    uiCont.SetConnnection(ConnectionStatus.Disconnected);
                     Debug.LogWarning("Disconnected from the server");
                     break;
             }

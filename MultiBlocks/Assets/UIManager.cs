@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     //UI References
     public GameObject InitMenu;
     public Image bg;
+    public TMP_Text connectText;
 
 
     //Instance Variables
@@ -44,14 +45,42 @@ public class UIManager : MonoBehaviour
         {
             bg.color = Color.Lerp(sourceColor, bgColors[targetColorIdx], (Time.time - (float) transitionStart) / (float) timePerTransition);
             yield return new WaitForFixedUpdate();
+
+            if ((Time.time - (float)transitionStart) > timePerTransition)
+                UpdateTargetBGColor();
         }
+    }
+
+    public void SetConnnection(ConnectionStatus cs)
+    {
+        if (cs == ConnectionStatus.Connected)
+        {
+            connectText.text = "Connected to Server!";
+            connectText.color = Color.green;
+        }
+        else if (cs == ConnectionStatus.Connecting)
+        {
+            connectText.text = "Connecting...";
+            connectText.color = Color.yellow;
+        }
+        else if(cs == ConnectionStatus.Disconnected)
+        {
+            connectText.text = "Disconnected from Server!";
+            connectText.color = Color.red;
+        }
+        else
+        {
+            connectText.text = "Conection Timeout!";
+            connectText.color = Color.red;
+        }
+
     }
 
     void UpdateTargetBGColor()
     {
         transitionStart = Time.time;
         sourceColor = bg.color;
-        if (targetColorIdx == bgColors.Count)
+        if (targetColorIdx == bgColors.Count-1)
             targetColorIdx = 0;
         else
             targetColorIdx++;

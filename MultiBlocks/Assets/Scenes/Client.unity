@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44043943, g: 0.4890324, b: 0.56919104, a: 1}
+  m_IndirectSpecularColor: {r: 0.44044006, g: 0.48903275, b: 0.56919223, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2750,6 +2750,7 @@ MonoBehaviour:
     type: 3}
   ipToConnectTo: 127.0.0.1
   mapCont: {fileID: 655427753}
+  uiCont: {fileID: 450551577}
 --- !u!114 &450551577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2764,6 +2765,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InitMenu: {fileID: 1211394495}
   bg: {fileID: 1705360229}
+  connectText: {fileID: 100745813}
   bgColors:
   - {r: 1, g: 0, b: 1, a: 1}
   - {r: 1, g: 0.8950032, b: 0, a: 1}
@@ -6808,7 +6810,7 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: a tiny tank
       m_Image: {fileID: 0}
-    - m_Text: 
+    - m_Text: Choose this if you cant choose
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
