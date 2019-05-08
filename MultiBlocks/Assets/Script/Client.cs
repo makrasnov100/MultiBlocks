@@ -81,7 +81,7 @@ public class Client : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
 
-        if (connectionTime == -1)
+        if (connectionId == -1)
         {
             uiCont.SetConnnection(ConnectionStatus.Failed);
             Disconnect();
