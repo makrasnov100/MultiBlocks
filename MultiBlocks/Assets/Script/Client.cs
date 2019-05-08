@@ -26,7 +26,7 @@ public class Client : MonoBehaviour
     private byte[] workingBuffer = new byte[1024];
 
     private float connectionTime;
-    private int connectionId;
+    private int connectionId = -1;
 
     private bool isConnected = false;
     private byte error;
@@ -81,7 +81,7 @@ public class Client : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
 
-        if (!connectionId)
+        if (connectionId == -1)
         {
             uiCont.SetConnnection(ConnectionStatus.Failed);
             Disconnect();

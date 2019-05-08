@@ -19,7 +19,7 @@ public class UIManager : MonoBehaviour
     //BG animation
     public List<Color> bgColors = new List<Color>();
     Color sourceColor;
-    int targetColorIdx = -1;
+    int targetColorIdx = 1;
     double transitionStart;
     public double timePerTransition;
 
