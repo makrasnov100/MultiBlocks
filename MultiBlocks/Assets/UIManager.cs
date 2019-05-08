@@ -6,10 +6,17 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    public Client client;
+
     //UI References
+    // - output
     public GameObject InitMenu;
     public Image bg;
     public TMP_Text connectText;
+    public Button readyBtn;
+    public Button notReadyBtn;
+    // - input
+    public TMP_Text NameInput;
 
 
     //Instance Variables
@@ -31,12 +38,6 @@ public class UIManager : MonoBehaviour
         targetColorIdx = 1;
         transitionStart = Time.time;
         StartCoroutine(BackgroundAnimation());
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     IEnumerator BackgroundAnimation()
@@ -73,16 +74,55 @@ public class UIManager : MonoBehaviour
             connectText.text = "Conection Timeout!";
             connectText.color = Color.red;
         }
-
     }
 
     void UpdateTargetBGColor()
     {
         transitionStart = Time.time;
         sourceColor = bg.color;
-        if (targetColorIdx == bgColors.Count-1)
+        if (targetColorIdx == bgColors.Count - 1)
             targetColorIdx = 0;
         else
             targetColorIdx++;
+    }
+
+    public void OnReadyClick()
+    {
+        if (client.GetOurClientID() == -1)
+            return;
+
+        client.isReady = !client.isReady;
+        if (client.isReady)
+        {
+            readyBtn.gameObject.SetActive(false);
+            notReadyBtn.gameObject.SetActive(true);
+
+        }
+        else
+        {
+            readyBtn.gameObject.SetActive(true);
+            notReadyBtn.gameObject.SetActive(false);
+
+        }
+    }
+
+    public void OnServerChange()
+    {
+        if (client.GetOurClientID() != -1)
+        {
+            //Alter Ready button
+            ColorBlock readyColors = readyBtn.colors;
+            readyColors.normalColor = new Color(.01f, 1, 0);
+            readyBtn.colors = readyColors;
+            readyBtn.gameObject.GetComponentInChildren<Text>().text = "Ready";
+        }
+        else
+        {
+            //Alter Ready button
+            ColorBlock readyColors = readyBtn.colors;
+            readyColors.normalColor = new Color(1, 1, 0);
+            readyBtn.colors = readyColors;
+            readyBtn.gameObject.GetComponentInChildren<Text>().text = "Wait";
+        }
     }
 }

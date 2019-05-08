@@ -25,10 +25,11 @@ public class Client : MonoBehaviour
     private int unreliableChannel;
     private byte[] workingBuffer = new byte[1024];
 
-    private float connectionTime;
-    private int connectionId;
+    private float connectionTime = -1;
+    private int connectionId = -1;
 
     private bool isConnected = false;
+    public bool isReady = false;
     private byte error;
 
     //Controllers
@@ -36,7 +37,7 @@ public class Client : MonoBehaviour
     public UIManager uiCont;
 
     //Players Storage
-    private int ourClientID;
+    private int ourClientID = -1;
     public ClientPlayer ourPlayer;
     public Dictionary<int, ClientPlayer> players = new Dictionary<int, ClientPlayer>();
 
@@ -70,7 +71,6 @@ public class Client : MonoBehaviour
         hostId = NetworkTransport.AddHost(topo, 0);
         connectionId = NetworkTransport.Connect(hostId, ipToConnectTo, port, 0, out error);
 
-        connectionTime = Time.time;
         Debug.Log("Attempting to connect to - " + ipToConnectTo);
         isConnected = true;
 
@@ -81,7 +81,7 @@ public class Client : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
 
-        if (!connectionId)
+        if (connectionTime == -1)
         {
             uiCont.SetConnnection(ConnectionStatus.Failed);
             Disconnect();

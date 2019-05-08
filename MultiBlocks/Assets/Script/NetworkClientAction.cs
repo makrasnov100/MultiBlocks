@@ -57,6 +57,8 @@ public class OnPlayerSetup : NetworkClientAction
         string[] playerInfo = data[1].Split(',');
         client.SetOurClientID(int.Parse(playerInfo[0]));
         Debug.Log("Our Client ID is : " + client.GetOurClientID());
+        client.uiCont.OnServerChange();
+
 
         //Create and store refernce to player
         GameObject curPlayerRef = GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerInfo[1]), float.Parse(playerInfo[2]), float.Parse(playerInfo[3])), new Quaternion());
