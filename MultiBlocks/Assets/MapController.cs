@@ -103,7 +103,7 @@ public class MapController : MonoBehaviour
         int[] inIdx = { -1, -1 };
 
         //If not first level calculate incoming points
-        if (curLevel >= 0)
+        if (curLevel != 1)
         {
             if (latestOutIdx[0] == -1 || latestOutIdx[1] == -1)
             {
@@ -118,7 +118,7 @@ public class MapController : MonoBehaviour
         }
 
         //If not the last level calculate outgoing points
-        if (peakLevel != 0 && curLevel != peakLevel) //first condition protects from infinite loop
+        if (peakLevel != 1 && curLevel != peakLevel) //first condition protects from infinite loop
         {
             while (Mathf.Abs(outIdx[0] - inIdx[0]) <= 1 || Mathf.Abs(outIdx[1] - inIdx[1]) <= 1 || outIdx[0] == -1 || outIdx[1] == -1)
             {

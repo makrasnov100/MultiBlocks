@@ -83,6 +83,14 @@ public class LevelManager : MonoBehaviour
             GameObject curElevator = Instantiate(levelElevator, pos, Quaternion.identity, transform);
             curElevator.transform.localScale = scale;
         }
+
+        //If first level create a spawn platform
+        if (curLvl == 1)
+        {
+            //FINISH THIS PART IN CLASS
+            GameObject go = Resources.Load<GameObject>("SpawnDeck");
+            //Instantiate(go, new Vector3(), Quaternion.identity, )
+        }
     }
 
     public void PlanFloorRemoval(int seed)

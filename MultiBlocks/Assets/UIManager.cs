@@ -13,14 +13,19 @@ public class UIManager : MonoBehaviour
     public GameObject InitMenu;
     public Image bg;
     public TMP_Text connectText;
+    public TMP_Text readyPlayersCount;
+    public TMP_Text gameStartsCountdown;
+    public TMP_Text latency;
     public Button readyBtn;
     public Button notReadyBtn;
     // - input
-    public TMP_Text NameInput;
+    public TMP_InputField nameInput;
+    public Dropdown modelInput;
 
 
     //Instance Variables
     bool initMenuActive = true;
+    int readyPlayers = 0;
 
 
     //BG animation
@@ -97,12 +102,17 @@ public class UIManager : MonoBehaviour
             readyBtn.gameObject.SetActive(false);
             notReadyBtn.gameObject.SetActive(true);
 
+            //Send Ready Info to Server
+            client.Send("OnPlayerReady|1", client.GetReliableChannel());
+
         }
         else
         {
             readyBtn.gameObject.SetActive(true);
             notReadyBtn.gameObject.SetActive(false);
 
+            //Send Ready Info to Server
+            client.Send("OnPlayerReady|0", client.GetReliableChannel());
         }
     }
 
@@ -125,4 +135,29 @@ public class UIManager : MonoBehaviour
             readyBtn.gameObject.GetComponentInChildren<Text>().text = "Wait";
         }
     }
+
+    public void ChangeReadyPlayers(int delta)
+    {
+        readyPlayers += delta;
+        readyPlayersCount.text = readyPlayers + " Players Ready";
+    }
+
+    public void SetReadyPlayers(string readyPlayers)
+    {
+        this.readyPlayers = int.Parse(readyPlayers);
+        readyPlayersCount.text = readyPlayers + " Players Ready";
+    }
+
+    public void SetLatency(int milliseconds)
+    {
+        latency.text = milliseconds + " ms";
+
+        if (milliseconds < 100)
+            latency.color = Color.green;
+        else if (milliseconds < 500)
+            latency.color = Color.yellow;
+        else
+            latency.color = Color.red;
+    }
 }
+

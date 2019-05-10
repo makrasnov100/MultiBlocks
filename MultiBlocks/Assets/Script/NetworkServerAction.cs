@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
@@ -66,7 +67,10 @@ public class OnConnect : NetworkServerAction
         //Add player to storage
         server.curSpawnPos = new Vector3(server.curSpawnPos.x + 2, server.curSpawnPos.y, server.curSpawnPos.z);
         sp = new ServerPlayer(cnnId, server.curSpawnPos);
-        addUser(server.clients, server.clientIdxs, sp); 
+        addUser(server.clients, server.clientIdxs, sp);
+
+        //Add Ready Players
+        server.Send("OnChangeReadyPlayers|" + server.readyClientCount, server.GetReliableChannel(), cnnId);
 
         //Tells joining player about itself
         string msg = "OnPlayerSetup|" + cnnId + "," + sp.GetStringTransform();
@@ -94,8 +98,14 @@ public class OnDisconnect : NetworkServerAction
         //Check if player disconnected
         if (server.clientIdxs.ContainsKey(cnnId))
         {
+            //Find if disconnected player was in ready mode
+            if (server.clients[server.clientIdxs[cnnId]].isReady)
+                server.readyClientCount--;
+
             removeUser(server.clients, server.clientIdxs, cnnId);
-            server.Send("OnOtherPlayerDisconnect|" + cnnId, server.GetReliableChannel(), server.clients);
+
+            server.Send("OnOtherPlayerDisconnect|" + cnnId + "," + server.readyClientCount, server.GetReliableChannel(), server.clients);
+
             notFound = false;
         }
         if (notFound)
@@ -122,5 +132,53 @@ public class OnPlayerMove : NetworkServerAction
 
         //Send to every client that players updated transform
         server.pendingMoveUpdates.Enqueue(cnnId);
+    }
+}
+
+public class OnPlayerReady : NetworkServerAction
+{
+    public OnPlayerReady(Server server) : base(server) { }
+
+    public override void PerformAction(string[] data, int cnnId)
+    {
+        //DATA FORMAT: OnPlayerReady|1-true OR 0-false
+
+        if (int.Parse(data[1]) == 1)
+        {
+            if (!server.clients[server.clientIdxs[cnnId]].isReady)
+            {
+                server.clients[server.clientIdxs[cnnId]].isReady = true;
+                server.readyClientCount++;
+
+                server.Send("OnChangeReadyPlayers|1|-1", server.GetReliableChannel());
+            }
+        }
+        else
+        {
+            if (server.clients[server.clientIdxs[cnnId]].isReady)
+            {
+                server.clients[server.clientIdxs[cnnId]].isReady = false;
+                server.readyClientCount--;
+
+                server.Send("OnChangeReadyPlayers|-1|-1", server.GetReliableChannel());
+
+            }
+        }
+
+
+    }
+}
+
+public class OnSyncTimeWithPlayer : NetworkServerAction
+{
+    public OnSyncTimeWithPlayer(Server server) : base(server) { }
+
+    public override void PerformAction(string[] data, int cnnId)
+    {
+        //DATA FORMAT: OnSyncTimeWithPlayer|hour,minute,second,millisecond
+
+        DateTime curTime = System.DateTime.Now;
+        server.Send("OnSyncTimeWithServer|" + data[1] + "|" + curTime.Year + "," + curTime.Month + "," + curTime.Day + "," + curTime.Hour + "," + curTime.Minute + "," + curTime.Second + "," + curTime.Millisecond, server.GetReliableChannel(), cnnId);
+
     }
 }

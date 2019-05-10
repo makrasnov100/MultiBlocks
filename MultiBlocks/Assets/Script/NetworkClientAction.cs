@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 
 public abstract class NetworkClientAction
@@ -38,8 +39,11 @@ public class OnOtherPlayerDisconnect : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
+        //DATA FORMAT: OnOtherPlayerDisconnect|disconnected cnnID, amount of players ready
+
         GameObject.Destroy(client.players[int.Parse(data[1])].playerRef);
         client.players.Remove(int.Parse(data[1]));
+        client.uiCont.SetReadyPlayers(data[2]);
     }
 }
 
@@ -59,11 +63,16 @@ public class OnPlayerSetup : NetworkClientAction
         Debug.Log("Our Client ID is : " + client.GetOurClientID());
         client.uiCont.OnServerChange();
 
+        //Sync Time with Server
+        DateTime curTime = System.DateTime.Now;
+        client.Send("OnSyncTimeWithPlayer|" + curTime.Year + "," + curTime.Month + "," + curTime.Day + "," + curTime.Hour + "," + curTime.Minute + "," + curTime.Second + "," + curTime.Millisecond, client.GetUnreliableChannel());
+
 
         //Create and store refernce to player
         GameObject curPlayerRef = GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerInfo[1]), float.Parse(playerInfo[2]), float.Parse(playerInfo[3])), new Quaternion());
         ClientPlayer cp = new ClientPlayer(curPlayerRef);
         curPlayerRef.GetComponent<MovementController>().client = client;
+        curPlayerRef.SetActive(false);
 
         cp.playerRef.name = "myPlayer";
         client.SetOurPlayer(cp);
@@ -91,6 +100,7 @@ public class OnNewPlayers : NetworkClientAction
         cp.playerRef.GetComponentInChildren<Camera>().enabled = false;
         GameObject.Destroy(cp.playerRef.GetComponent<Rigidbody>());
         client.players.Add(int.Parse(data[1]), cp);
+        cp.playerRef.SetActive(false);
     }
 }
 
@@ -117,6 +127,60 @@ public class OnLoadExistingPlayers : NetworkClientAction
             GameObject.Destroy(cp.playerRef.GetComponent<Rigidbody>());
             cp.SetTransform(curUser[1], curUser[2], curUser[3], curUser[4]);
             client.players.Add(int.Parse(curUser[0]), cp);
+            cp.playerRef.SetActive(false);
         }
+    }
+}
+
+public class OnChangeReadyPlayers : NetworkClientAction
+{
+    public OnChangeReadyPlayers(Client client) : base(client) { }
+
+    public override void PerformAction(string[] data)
+    {
+        //DATA FORMAT : OnChangeReadyPlayers|amountChanged
+
+        client.uiCont.ChangeReadyPlayers(int.Parse(data[1]));
+    }
+}
+
+
+public class OnSyncTimeWithServer : NetworkClientAction
+{
+    public OnSyncTimeWithServer(Client client) : base(client) { }
+
+    public override void PerformAction(string[] data)
+    {
+        //DATA FORMAT : OnSyncTimeWithServer|clientTime|serverTime
+        //TIME FORMAT : Year,Month,Day,Hours,Minutes,Seconds,Milliseconds
+
+        string[] clientTime = data[1].Split(',');
+        string[] serverTime = data[1].Split(',');
+
+        //Calculate Latency
+        DateTime curTime = System.DateTime.Now;
+        DateTime sentTime = new DateTime(int.Parse(clientTime[0]), int.Parse(clientTime[1]), int.Parse(clientTime[2]), int.Parse(clientTime[3]), int.Parse(clientTime[4]), int.Parse(clientTime[5]), int.Parse(clientTime[6]));
+        TimeSpan roundtrip = curTime - sentTime;
+        int latency = (int) roundtrip.TotalMilliseconds / 2;
+        client.uiCont.SetLatency(latency);
+
+        //Calculate Server/Client Time Difference
+        DateTime serverStamp = new DateTime(int.Parse(serverTime[0]), int.Parse(serverTime[1]), int.Parse(serverTime[2]), int.Parse(serverTime[3]), int.Parse(serverTime[4]), int.Parse(serverTime[5]), int.Parse(serverTime[6]));
+        TimeSpan serverTimeSpan = serverStamp - sentTime;
+        client.timeDifference = serverTimeSpan.TotalMilliseconds + latency;
+
+        Debug.LogWarning("Server to Client Time Difference Calculated AT: " + client.timeDifference);
+    }
+}
+
+public class OnServerDisconnected : NetworkClientAction
+{
+    public OnServerDisconnected(Client client) : base(client) { }
+
+    public override void PerformAction(string[] data)
+    {
+        //DATA FORMAT : OnServerDisconnected|
+
+        client.uiCont.SetConnnection(ConnectionStatus.Disconnected);
     }
 }

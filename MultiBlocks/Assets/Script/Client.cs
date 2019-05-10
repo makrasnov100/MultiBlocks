@@ -29,6 +29,7 @@ public class Client : MonoBehaviour
     private int connectionId = -1;
 
     private bool isConnected = false;
+    public double timeDifference = -1;
     public bool isReady = false;
     private byte error;
 
@@ -53,6 +54,11 @@ public class Client : MonoBehaviour
         methods.Add("OnNewPlayers", new OnNewPlayers(this));                                   //Server told client new player information
         methods.Add("OnLoadExistingPlayers", new OnLoadExistingPlayers(this));                 //Server telling joining player about old players
         methods.Add("OnOtherPlayerDisconnect", new OnOtherPlayerDisconnect(this));             //Server telling others about a leaving player
+        methods.Add("OnServerDisconnected", new OnServerDisconnected(this));
+
+
+        methods.Add("OnChangeReadyPlayers", new OnChangeReadyPlayers(this));
+        methods.Add("OnSyncTimeWithServer", new OnSyncTimeWithServer(this));
 
         Connect();
     }

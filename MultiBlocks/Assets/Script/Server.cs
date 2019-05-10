@@ -26,6 +26,7 @@ public class Server : MonoBehaviour
     //Connected Players
     public List<ServerPlayer> clients = new List<ServerPlayer>();
     public Dictionary<int, int> clientIdxs = new Dictionary<int, int>();
+    public int readyClientCount = 0;
 
     //Movement update handling
     public Queue<int> pendingMoveUpdates = new Queue<int>();
@@ -57,6 +58,9 @@ public class Server : MonoBehaviour
         methods.Add("PlayerMove", new OnPlayerMove(this));                                  //Client asked to move/rotate
         methods.Add("OnDisconnect", new OnDisconnect(this));                                //Client has disconnected
         methods.Add("OnConnect", new OnConnect(this));                                      //Client has connected - where player setup is
+        methods.Add("OnPlayerReady", new OnPlayerReady(this));
+        methods.Add("OnSyncTimeWithPlayer", new OnSyncTimeWithPlayer(this));
+        
     }
 
     // Update is called once per frame

@@ -9,6 +9,7 @@ using UnityEngine;
 [Serializable]
 public class ServerPlayer
 {
+    public bool isReady;
     public int connectionId;
     private float positionX;
     private float positionY;
@@ -17,6 +18,7 @@ public class ServerPlayer
 
     public ServerPlayer(int connectionId, Vector3 spawnPoint)
     {
+        isReady = false;
         this.connectionId = connectionId;
         this.positionX = spawnPoint.x;
         this.positionY = spawnPoint.y;
