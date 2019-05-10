@@ -77,58 +77,35 @@ public class MovementController : MonoBehaviour
         //vertical is left/right
         
 
-        Vector3 curForce = Vector3.zero;
+
         float rotationAmt = 0;
 
-       
-
-        if (Input.GetKey(KeyCode.W) && isGrounded == true)
+        if (Input.GetKey(KeyCode.W) && isGrounded == true)  
             forceAmtZ += 1.0f;
+
         if (Input.GetKey(KeyCode.A) && isGrounded == true)
             forceAmtX -= 1.0f;
         if (Input.GetKey(KeyCode.S) && isGrounded == true)
             forceAmtZ -= 1.0f;
+       
         if (Input.GetKey(KeyCode.D) && isGrounded == true)
             forceAmtX += 1.0f;
-        if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.W) && isGrounded == true)
-        {
-            forceAmtX += 1.0f;
-            forceAmtZ += 1.0f;
-        }
-        if (Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.W) && isGrounded == true)
-        {
-            forceAmtX -= 1.0f;
-            forceAmtZ += 1.0f;
-        }
-        if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.S) && isGrounded == true)
-        {
-            forceAmtX += 1.0f;
-            forceAmtZ -= 1.0f;
-        }
-        if (Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.S) && isGrounded == true)
-        {
-            forceAmtX -= 1.0f;
-            forceAmtZ -= 1.0f;
-        }
 
-        float  forceAmt = forceAmtX + forceAmtZ;
+        Vector3 forward = body.transform.forward * forceAmtZ;
+        Vector3 side = body.transform.right * forceAmtX;
+        Vector3 curForce = Vector3.Normalize(forward + side);   
 
-        curForce.x = curForce.x + forceAmtX;
-        curForce.z = curForce.z + forceAmtZ;
-        curForce = Vector3.Normalize(body.transform.forward + curForce);
-      
 
         if (rb)
         {
             Vector3 curVelocity = rb.velocity;
-            if (forceAmt != 0)
+            if (forceAmtX != 0 || forceAmtZ != 0)
             {
                 
                 curForce = curForce.normalized * (Time.deltaTime * 100) * playerSpeed;
                 curVelocity.x = curForce.x; 
                 curVelocity.z = curForce.z;
                 rb.velocity = curVelocity;
-               //rb.transform.Translate(curVelocity.x * Input.GetAxis("Horizontal"), 0f, curVelocity.z * Input.GetAxis("Vertical")); 
             }
 
             if (rotationAmt != 0)
