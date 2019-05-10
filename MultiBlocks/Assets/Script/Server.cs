@@ -28,6 +28,8 @@ public class Server : MonoBehaviour
     public Dictionary<int, int> clientIdxs = new Dictionary<int, int>();
     public int readyClientCount = 0;
 
+    public LevelDesigner levelDesigner;
+
     //Movement update handling
     public Queue<int> pendingMoveUpdates = new Queue<int>();
 

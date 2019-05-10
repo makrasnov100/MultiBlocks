@@ -151,6 +151,11 @@ public class OnPlayerReady : NetworkServerAction
                 server.readyClientCount++;
 
                 server.Send("OnChangeReadyPlayers|1|-1", server.GetReliableChannel());
+
+                if (server.readyClientCount >= 5)
+                {
+                    server.levelDesigner.StartMapGenerations();
+                }
             }
         }
         else
@@ -162,6 +167,10 @@ public class OnPlayerReady : NetworkServerAction
 
                 server.Send("OnChangeReadyPlayers|-1|-1", server.GetReliableChannel());
 
+                if (server.readyClientCount < 3)
+                {
+                    server.levelDesigner.CancelPlayMode();
+                }
             }
         }
 
