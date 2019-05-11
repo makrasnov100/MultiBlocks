@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class UIManager : MonoBehaviour
 {
@@ -158,6 +159,11 @@ public class UIManager : MonoBehaviour
             latency.color = Color.yellow;
         else
             latency.color = Color.red;
+    }
+
+    public void UpdateGameStart(TimeSpan ts)
+    {
+        gameStartsCountdown.text = "Game Starts in " + ts.TotalSeconds + " seconds";
     }
 }
 

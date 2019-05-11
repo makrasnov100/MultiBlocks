@@ -1,10 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
+public struct LevelInfo
+{
+    public int levelSeed;
+    public DateTime endTime;
+    public float secForLevel;
+    public float proportionGoneByEnd;
+
+    public LevelInfo(int levelSeed, DateTime endTime, float secForLevel, float proportionGoneByEnd)
+    {
+        this.levelSeed = levelSeed;
+        this.endTime = endTime;
+        this.secForLevel = secForLevel;
+        this.proportionGoneByEnd = proportionGoneByEnd;
+    }
+}
 
 public class MapController : MonoBehaviour
 {
-    public AudioSource audioSource;
+    public Client client;
 
     //Obstacle Ref
     public GameObject tilePrefab;
@@ -25,10 +42,10 @@ public class MapController : MonoBehaviour
     public int sizePerBlock;
     public int sizePerLevel;
     public Vector3 towerCenter;
-    public float secPerLevel;
     public int peakLevel;
 
     //Instance Variables
+    Dictionary<int, LevelInfo> levelCtrl = new Dictionary<int, LevelInfo>();
     List<LevelManager> levels = new List<LevelManager>();
     private int curLevel = 0;
 
@@ -59,8 +76,8 @@ public class MapController : MonoBehaviour
         //Create the first few levels
         for (int i = 0; i < levelsPresentAtOnce; i++)
         {
-            curLevel++;
             CreateNewLevel();
+            curLevel++;
         }
 
 
@@ -72,28 +89,31 @@ public class MapController : MonoBehaviour
         towerSize = Mathf.Max(10, towerSize);
     }
 
-    IEnumerator LayerTimer()
+    IEnumerator LayerTimer(DateTime gamServerTime)
     {
+        DateTime actualStartTime = gamServerTime.AddMilliseconds(client.timeDifference);
+
+        while (actualStartTime > DateTime.Now)
+        {
+            client.uiCont.UpdateGameStart(actualStartTime - DateTime.Now);
+            yield return new WaitForEndOfFrame();
+        }
+
+       isStarted = true;
 
         while (isStarted && curLevel-levelsPresentAtOnce < peakLevel)
         {
-            levels[curLevel - levelsPresentAtOnce].BeginDegradation();
-            yield return new WaitForSeconds(secPerLevel);
+            levels[curLevel - levelsPresentAtOnce + 1].BeginDegradation();
+            yield return new WaitForSeconds(levelCtrl[curLevel-1].secForLevel);
 
             curLevel++;
-            if (curLevel <= peakLevel)
+            if (curLevel < peakLevel)
             {
                 CreateNewLevel();
             }
         }
 
         isStarted = false;
-    }
-
-    public void StartGeneration(bool isStarted)
-    {
-        this.isStarted = isStarted;
-        StartCoroutine(LayerTimer());
     }
 
     int[] latestOutIdx = { -1, -1 };
@@ -103,12 +123,12 @@ public class MapController : MonoBehaviour
         int[] inIdx = { -1, -1 };
 
         //If not first level calculate incoming points
-        if (curLevel != 1)
+        if (curLevel != 0)
         {
             if (latestOutIdx[0] == -1 || latestOutIdx[1] == -1)
             {
-                inIdx[0] = Random.Range(1, towerSize - 2);
-                inIdx[1] = Random.Range(1, towerSize - 2);
+                inIdx[0] = UnityEngine.Random.Range(1, towerSize - 2);
+                inIdx[1] = UnityEngine.Random.Range(1, towerSize - 2);
             }
             else
             {
@@ -118,20 +138,23 @@ public class MapController : MonoBehaviour
         }
 
         //If not the last level calculate outgoing points
-        if (peakLevel != 1 && curLevel != peakLevel) //first condition protects from infinite loop
+        while (Mathf.Abs(outIdx[0] - inIdx[0]) <= 1 || Mathf.Abs(outIdx[1] - inIdx[1]) <= 1 || outIdx[0] == -1 || outIdx[1] == -1)
         {
-            while (Mathf.Abs(outIdx[0] - inIdx[0]) <= 1 || Mathf.Abs(outIdx[1] - inIdx[1]) <= 1 || outIdx[0] == -1 || outIdx[1] == -1)
-            {
-                outIdx[0] = Random.Range(1, towerSize-2);
-                outIdx[1] = Random.Range(1, towerSize-2);
-            }
+            outIdx[0] = UnityEngine.Random.Range(1, towerSize-2);
+            outIdx[1] = UnityEngine.Random.Range(1, towerSize-2);
         }
 
         //Create the level manager and its floors
+        LevelInfo curLevelInfo;
+        if (levelCtrl.ContainsKey(curLevel))
+            curLevelInfo = levelCtrl[curLevel];
+        else
+            return;
+
         GameObject curLMGO = Instantiate(LevelManager, transform);
         LevelManager curLM = curLMGO.GetComponent<LevelManager>();
-        curLM.GenerateFloor(towerSize, curLevel, secPerLevel, .5f, towerCenter, sizePerBlock, sizePerLevel, inIdx, outIdx);
-        curLM.PlanFloorRemoval(255);
+        curLM.GenerateFloor(towerSize, curLevel, curLevelInfo.secForLevel, curLevelInfo.proportionGoneByEnd, towerCenter, sizePerBlock, sizePerLevel, inIdx, outIdx);
+        curLM.PlanFloorRemoval(curLevelInfo.levelSeed);
         levels.Add(curLM);
 
         latestOutIdx[0] = outIdx[0];
@@ -162,5 +185,15 @@ public class MapController : MonoBehaviour
         tilePool.Enqueue(go);
     }
 
+    public void PlanLevel(int levelNum, int levelSeed, DateTime endTime, float secForLevel, float proportionGoneByEnd)
+    {
+        if (levelNum == 0)
+        {
+            DateTime gameBeginTime = endTime;
+            gameBeginTime.AddSeconds(secForLevel);
+            StartCoroutine(LayerTimer(endTime));
+        }
 
+        levelCtrl.Add(levelNum, new LevelInfo(levelSeed, endTime, secForLevel, proportionGoneByEnd));
+    }
 }

@@ -104,7 +104,7 @@ public class OnDisconnect : NetworkServerAction
 
             removeUser(server.clients, server.clientIdxs, cnnId);
 
-            server.Send("OnOtherPlayerDisconnect|" + cnnId + "," + server.readyClientCount, server.GetReliableChannel(), server.clients);
+            server.Send("OnOtherPlayerDisconnect|" + cnnId + "|" + server.readyClientCount, server.GetReliableChannel(), server.clients);
 
             notFound = false;
         }

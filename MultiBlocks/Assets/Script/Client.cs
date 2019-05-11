@@ -55,10 +55,9 @@ public class Client : MonoBehaviour
         methods.Add("OnLoadExistingPlayers", new OnLoadExistingPlayers(this));                 //Server telling joining player about old players
         methods.Add("OnOtherPlayerDisconnect", new OnOtherPlayerDisconnect(this));             //Server telling others about a leaving player
         methods.Add("OnServerDisconnected", new OnServerDisconnected(this));
-
-
         methods.Add("OnChangeReadyPlayers", new OnChangeReadyPlayers(this));
         methods.Add("OnSyncTimeWithServer", new OnSyncTimeWithServer(this));
+        methods.Add("OnLevelInfo", new OnLevelInfo(this));
 
         Connect();
     }

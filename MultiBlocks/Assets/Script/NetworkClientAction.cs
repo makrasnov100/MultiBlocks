@@ -39,7 +39,8 @@ public class OnOtherPlayerDisconnect : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT: OnOtherPlayerDisconnect|disconnected cnnID, amount of players ready
+        //DATA FORMAT: OnOtherPlayerDisconnect|disconnected cnnID| amount of players ready
+
 
         GameObject.Destroy(client.players[int.Parse(data[1])].playerRef);
         client.players.Remove(int.Parse(data[1]));
@@ -77,8 +78,6 @@ public class OnPlayerSetup : NetworkClientAction
         cp.playerRef.name = "myPlayer";
         client.SetOurPlayer(cp);
         client.players.Add(int.Parse(playerInfo[0]), cp);
-
-        client.mapCont.StartGeneration(true);
     }
 }
 
@@ -184,3 +183,20 @@ public class OnServerDisconnected : NetworkClientAction
         client.uiCont.SetConnnection(ConnectionStatus.Disconnected);
     }
 }
+
+
+public class OnLevelInfo : NetworkClientAction
+{
+    public OnLevelInfo(Client client) : base(client) { }
+
+    public override void PerformAction(string[] data)
+    {
+        //DATA FORMAT : OnLevelInfo|levelNumber|levelSeed|levelServerEndTime|secForLevel|proportionGoneByEnd
+        //TIME FORMAT : Year,Month,Day,Hours,Minutes,Seconds,Milliseconds
+
+        string[] timeInfo = data[3].Split(',');
+        DateTime levelToDisappearAt = new DateTime(int.Parse(timeInfo[0]), int.Parse(timeInfo[1]), int.Parse(timeInfo[2]), int.Parse(timeInfo[3]), int.Parse(timeInfo[4]), int.Parse(timeInfo[5]), int.Parse(timeInfo[6]));
+        client.mapCont.PlanLevel(int.Parse(data[1]), int.Parse(data[2]), levelToDisappearAt, float.Parse(data[4]), float.Parse(data[5]));
+    }
+}
+

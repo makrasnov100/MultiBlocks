@@ -85,11 +85,14 @@ public class LevelManager : MonoBehaviour
         }
 
         //If first level create a spawn platform
-        if (curLvl == 1)
+        if (curLvl == 0)
         {
-            //FINISH THIS PART IN CLASS
             GameObject go = Resources.Load<GameObject>("SpawnDeck");
-            //Instantiate(go, new Vector3(), Quaternion.identity, )
+            Vector3 pos = layerCenter + new Vector3((towerSize / 2) * sizePerBlock + 4,
+                                                     0,
+                                                     0);
+
+            Instantiate(go, pos, Quaternion.Euler(new Vector3(-90,0,0)), transform);
         }
     }
 
