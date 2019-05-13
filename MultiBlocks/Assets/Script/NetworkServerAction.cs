@@ -161,7 +161,7 @@ public class OnPlayerReady : NetworkServerAction
 
                 server.Send("OnChangeReadyPlayers|1|-1", server.GetReliableChannel());
 
-                if (server.readyClientCount >= 1 && server.canStartGame && !server.gameLock)
+                if (server.readyClientCount >= 2 && server.canStartGame && !server.gameLock)
                 {
                     server.levelDesigner.StartMapGenerations();
                     server.canStartGame = false;

@@ -2908,7 +2908,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 4230825429026660175, guid: f5a1fd72882a8404abcef03f2ac3eebc,
     type: 3}
-  ipToConnectTo: 127.0.0.1
+  ipToConnectTo: 192.168.1.170
   timeDifference: -1
   isReady: 0
   mapCont: {fileID: 655427753}
@@ -6987,8 +6987,6 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: THE CUBE
       m_Image: {fileID: 0}
-    - m_Text: a tiny tank
-      m_Image: {fileID: 0}
     - m_Text: Choose this if you cant choose
       m_Image: {fileID: 0}
   m_OnValueChanged:
@@ -7988,7 +7986,7 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
+    m_Bias: 0
     m_NormalBias: 0.4
     m_NearPlane: 0.2
   m_Cookie: {fileID: 0}
