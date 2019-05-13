@@ -11,6 +11,7 @@ public class LevelDesigner : MonoBehaviour
     public float[] secPerLevelRange;
     public float[] levelGoneRange;
     public int peakLevel;
+    public int towerSize;
 
 
     //Instance Settings
@@ -20,7 +21,7 @@ public class LevelDesigner : MonoBehaviour
     {
         gameStartTime = DateTime.Now;
         DateTime levelEnd = DateTime.Now;
-        levelEnd = levelEnd.AddSeconds(90.0);
+        levelEnd = levelEnd.AddSeconds(10.0);
 
         //Calculate level rate values
         float secPerLevelSlope = (secPerLevelRange[1] - secPerLevelRange[0]) / peakLevel;
@@ -32,12 +33,12 @@ public class LevelDesigner : MonoBehaviour
             int levelSeed = UnityEngine.Random.Range(0, 100000);
             float curSecForLevel = secPerLevelRange[0] + (secPerLevelSlope * i);
             levelEnd = levelEnd.AddSeconds(curSecForLevel);
-            Debug.Log(levelEnd.Hour + "," + levelEnd.Minute + "," + levelEnd.Second);
             string curLevInfo = i + "|";
             curLevInfo += levelSeed + "|";
             curLevInfo += levelEnd.Year + "," + levelEnd.Month + "," + levelEnd.Day + "," + levelEnd.Hour + "," + levelEnd.Minute + "," + levelEnd.Second + "," + levelEnd.Millisecond + "|";
             curLevInfo += secPerLevelRange[0] + (secPerLevelSlope * i) + "|";
-            curLevInfo += levelGoneRange[0] + (levelGoneSlope * i);
+            curLevInfo += levelGoneRange[0] + (levelGoneSlope * i) + "|";
+            curLevInfo += towerSize;
 
             server.Send("OnLevelInfo|" + curLevInfo, server.GetUnreliableChannel());
         }
@@ -45,6 +46,6 @@ public class LevelDesigner : MonoBehaviour
 
     public void CancelPlayMode()
     {
-
+        server.Send("OnCancelPlay|" + 0, server.GetUnreliableChannel());
     }
 }

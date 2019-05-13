@@ -23,7 +23,7 @@ public class LevelManager : MonoBehaviour
         this.curLvl = curLvl;
         this.towerSize = towerSize;
         this.timeToComplete = timeToComplete;
-        this.difficultyThreshold = difficultyThreshold;
+        this.difficultyThreshold = difficultyThreshold/100;
         countRemoveIter = 0;
 
         //Populating initial cell list  
@@ -88,19 +88,16 @@ public class LevelManager : MonoBehaviour
         if (curLvl == 0)
         {
             GameObject go = Resources.Load<GameObject>("SpawnDeck");
-            Vector3 pos = layerCenter + new Vector3((towerSize / 2) * sizePerBlock + 4,
+            Vector3 pos = layerCenter + new Vector3(((towerSize / 2) * sizePerBlock) + 5,
                                                      0,
                                                      0);
 
-            Instantiate(go, pos, Quaternion.Euler(new Vector3(-90,0,0)), transform);
+            Instantiate(go, pos, Quaternion.Euler(new Vector3(-90,180,0)), transform);
         }
     }
 
-    public void PlanFloorRemoval(int seed)
+    public void PlanFloorRemoval()
     {
-        //Set the random seed based on server input, count of despawn commands and other variables?
-        //Random.InitState(seed);
-
         //Choose blocks to despawn and start their despwn animation with correct time to despawn (should always be >1f seconds) 
         int amountToDespawn = (int)((towerSize * towerSize) * Mathf.Clamp(difficultyThreshold, 0, 1));
         int despawnsASec = Mathf.CeilToInt(amountToDespawn / Mathf.Floor(timeToComplete));
@@ -108,7 +105,7 @@ public class LevelManager : MonoBehaviour
         //Remove tile from selection list effeciently
         for (int i = 0; i < amountToDespawn; i++)
         {
-            int curIdx = Random.Range(0, floorTiles.Count-1);
+            int curIdx = Random.Range(0, floorTiles.Count);
             tilesToRemove.Push(floorTiles[curIdx]);
             ConstantTimeTileRemove(curIdx);
         }

@@ -47,6 +47,7 @@ public class MapController : MonoBehaviour
     //Instance Variables
     Dictionary<int, LevelInfo> levelCtrl = new Dictionary<int, LevelInfo>();
     List<LevelManager> levels = new List<LevelManager>();
+    Queue<float> levelWaitTimes = new Queue<float>();
     private int curLevel = 0;
 
 
@@ -71,19 +72,8 @@ public class MapController : MonoBehaviour
             GameObject go = Instantiate(tilePrefab, transform);
             go.SetActive(false);
             tilePool.Enqueue(go);
+            TileController tl = tilePool.Peek().GetComponent<TileController>();
         }
-
-        //Create the first few levels
-        for (int i = 0; i < levelsPresentAtOnce; i++)
-        {
-            CreateNewLevel();
-            curLevel++;
-        }
-
-
-        //Make sure size of tower is even
-        if (towerSize % 2 != 0)
-            towerSize++;
 
         //Make sure tower size is large enough for elevators
         towerSize = Mathf.Max(10, towerSize);
@@ -99,17 +89,41 @@ public class MapController : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-       isStarted = true;
+        //Spawn in all players
+        client.ourPlayer.playerRef.SetActive(true);
+        foreach (KeyValuePair<int, ClientPlayer> cp in client.players)
+            cp.Value.playerRef.SetActive(true);
 
-        while (isStarted && curLevel-levelsPresentAtOnce < peakLevel)
+        //Disable UI
+        client.uiCont.InitMenu.SetActive(false);
+
+        isStarted = true;
+
+        //Create the first set of levels
+        for (int i = 0; i < levelsPresentAtOnce; i++)
         {
-            levels[curLevel - levelsPresentAtOnce + 1].BeginDegradation();
-            yield return new WaitForSeconds(levelCtrl[curLevel-1].secForLevel);
-
+            CreateNewLevel();
             curLevel++;
+        }
+
+        //TODO: SHOW INSTRUCTIONS
+        yield return new WaitForSeconds(5f);
+
+        //Start Despawn of first Level
+        levelWaitTimes.Dequeue();
+        levels[curLevel - levelsPresentAtOnce].BeginDegradation();
+        curLevel++;
+
+        //Keep going through levels until none remain
+        while (levelWaitTimes.Count != 0)
+        {
+            yield return new WaitForSeconds(levelWaitTimes.Dequeue());
+            levels[curLevel - levelsPresentAtOnce].BeginDegradation();
+
             if (curLevel < peakLevel)
             {
                 CreateNewLevel();
+                curLevel++;
             }
         }
 
@@ -119,6 +133,16 @@ public class MapController : MonoBehaviour
     int[] latestOutIdx = { -1, -1 };
     void CreateNewLevel()
     {
+        //Find info for current level
+        LevelInfo curLevelInfo;
+        if (levelCtrl.ContainsKey(curLevel))
+            curLevelInfo = levelCtrl[curLevel];
+        else
+            return;
+
+        //Set the random seed based on server input, count of despawn commands and other variables?
+        UnityEngine.Random.InitState(curLevelInfo.levelSeed);
+
         int[] outIdx = { -1, -1 };
         int[] inIdx = { -1, -1 };
 
@@ -144,19 +168,15 @@ public class MapController : MonoBehaviour
             outIdx[1] = UnityEngine.Random.Range(1, towerSize-2);
         }
 
-        //Create the level manager and its floors
-        LevelInfo curLevelInfo;
-        if (levelCtrl.ContainsKey(curLevel))
-            curLevelInfo = levelCtrl[curLevel];
-        else
-            return;
 
         GameObject curLMGO = Instantiate(LevelManager, transform);
         LevelManager curLM = curLMGO.GetComponent<LevelManager>();
         curLM.GenerateFloor(towerSize, curLevel, curLevelInfo.secForLevel, curLevelInfo.proportionGoneByEnd, towerCenter, sizePerBlock, sizePerLevel, inIdx, outIdx);
-        curLM.PlanFloorRemoval(curLevelInfo.levelSeed);
+        curLM.PlanFloorRemoval();
         levels.Add(curLM);
 
+        //Add latest level information to storage
+        levelWaitTimes.Enqueue(curLevelInfo.secForLevel);
         latestOutIdx[0] = outIdx[0];
         latestOutIdx[1] = outIdx[1];
     }
@@ -185,15 +205,34 @@ public class MapController : MonoBehaviour
         tilePool.Enqueue(go);
     }
 
-    public void PlanLevel(int levelNum, int levelSeed, DateTime endTime, float secForLevel, float proportionGoneByEnd)
+    public void PlanLevel(int levelNum, int levelSeed, DateTime endTime, float secForLevel, float proportionGoneByEnd, int towerSize)
     {
+        //Make sure size of tower is even
+        if (towerSize % 2 != 0)
+            towerSize++;
+        this.towerSize = towerSize;
+
         if (levelNum == 0)
         {
             DateTime gameBeginTime = endTime;
-            gameBeginTime.AddSeconds(secForLevel);
-            StartCoroutine(LayerTimer(endTime));
+            gameBeginTime = gameBeginTime.AddSeconds(-secForLevel);
+            StartCoroutine(LayerTimer(gameBeginTime));
         }
 
         levelCtrl.Add(levelNum, new LevelInfo(levelSeed, endTime, secForLevel, proportionGoneByEnd));
+    }
+
+    public void CancelPlay()
+    {
+        //Stop level generation
+        StopAllCoroutines();
+
+        //TODO: put all tiles into the pool instead of destroying all levels
+
+        //Remove all created blocks 
+        levelCtrl.Clear();
+        for(int i = 0; i < levels.Count; i++)
+            Destroy(levels[i].gameObject);
+        levels.Clear();
     }
 }

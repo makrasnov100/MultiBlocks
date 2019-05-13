@@ -69,6 +69,15 @@ public class OnConnect : NetworkServerAction
         sp = new ServerPlayer(cnnId, server.curSpawnPos);
         addUser(server.clients, server.clientIdxs, sp);
 
+        //Calculate spawn position
+        //TODO: Transfer more map generation settings to server so these are not hard coded
+        int towerSize = server.levelDesigner.towerSize;
+        float zOffset = server.clients.Count * 2f;
+        zOffset = zOffset % 30; //Prevents users from being spawned in the air
+        int level = (int) Math.Floor(zOffset / 30);
+        Vector3 spawnPos = new Vector3(((towerSize / 2) * 2) + 3, 7 + (level * 3), zOffset - 15);
+        sp.SetTransform(spawnPos, -90f);
+
         //Add Ready Players
         server.Send("OnChangeReadyPlayers|" + server.readyClientCount, server.GetReliableChannel(), cnnId);
 
@@ -152,9 +161,10 @@ public class OnPlayerReady : NetworkServerAction
 
                 server.Send("OnChangeReadyPlayers|1|-1", server.GetReliableChannel());
 
-                if (server.readyClientCount >= 5)
+                if (server.readyClientCount >= 1 && server.canStartGame)
                 {
                     server.levelDesigner.StartMapGenerations();
+                    server.canStartGame = false;
                 }
             }
         }
@@ -167,9 +177,10 @@ public class OnPlayerReady : NetworkServerAction
 
                 server.Send("OnChangeReadyPlayers|-1|-1", server.GetReliableChannel());
 
-                if (server.readyClientCount < 3)
+                if (server.readyClientCount < 2)
                 {
                     server.levelDesigner.CancelPlayMode();
+                    server.canStartGame = true;
                 }
             }
         }

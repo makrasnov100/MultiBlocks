@@ -33,6 +33,14 @@ public class ServerPlayer
         rotationZ = float.Parse(rz);
     }
 
+    public void SetTransform(Vector3 pos, float rz)
+    {
+        this.positionX = pos.x;
+        this.positionY = pos.y;
+        this.positionZ = pos.z;
+        rotationZ = rz;
+    }
+
     public string GetStringTransform()
     {
         string result = positionX + "," + positionY + "," + positionZ + "," + rotationZ;

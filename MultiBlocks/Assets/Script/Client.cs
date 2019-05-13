@@ -58,6 +58,7 @@ public class Client : MonoBehaviour
         methods.Add("OnChangeReadyPlayers", new OnChangeReadyPlayers(this));
         methods.Add("OnSyncTimeWithServer", new OnSyncTimeWithServer(this));
         methods.Add("OnLevelInfo", new OnLevelInfo(this));
+        methods.Add("OnCancelPlay", new OnCancelPlay(this));
 
         Connect();
     }

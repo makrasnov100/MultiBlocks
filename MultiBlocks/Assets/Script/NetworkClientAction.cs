@@ -191,12 +191,25 @@ public class OnLevelInfo : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT : OnLevelInfo|levelNumber|levelSeed|levelServerEndTime|secForLevel|proportionGoneByEnd
+        //DATA FORMAT : OnLevelInfo|levelNumber|levelSeed|levelServerEndTime|secForLevel|proportionGoneByEnd|towerSize
         //TIME FORMAT : Year,Month,Day,Hours,Minutes,Seconds,Milliseconds
 
         string[] timeInfo = data[3].Split(',');
         DateTime levelToDisappearAt = new DateTime(int.Parse(timeInfo[0]), int.Parse(timeInfo[1]), int.Parse(timeInfo[2]), int.Parse(timeInfo[3]), int.Parse(timeInfo[4]), int.Parse(timeInfo[5]), int.Parse(timeInfo[6]));
-        client.mapCont.PlanLevel(int.Parse(data[1]), int.Parse(data[2]), levelToDisappearAt, float.Parse(data[4]), float.Parse(data[5]));
+        client.mapCont.PlanLevel(int.Parse(data[1]), int.Parse(data[2]), levelToDisappearAt, float.Parse(data[4]), float.Parse(data[5]), int.Parse(data[6]));
+    }
+}
+
+public class OnCancelPlay : NetworkClientAction
+{
+    public OnCancelPlay(Client client) : base(client) { }
+
+    public override void PerformAction(string[] data)
+    {
+        //DATA FORMAT : OnCancelPlay|placeholder
+
+        client.mapCont.CancelPlay();
+        client.uiCont.UpdateGameStart("Game Starts in alot of seconds");
     }
 }
 
