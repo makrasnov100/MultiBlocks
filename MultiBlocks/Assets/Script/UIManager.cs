@@ -111,7 +111,7 @@ public class UIManager : MonoBehaviour
 
             //Chosen model derivation
             int chosenModel = 0;
-            if (modelInput.value == 2)
+            if (modelInput.value == 3)
                 chosenModel = UnityEngine.Random.Range(0, 2);
             else
                 chosenModel = modelInput.value;
