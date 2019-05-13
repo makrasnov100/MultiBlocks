@@ -22,6 +22,7 @@ public class LevelDesigner : MonoBehaviour
         gameStartTime = DateTime.Now;
         DateTime levelEnd = DateTime.Now;
         levelEnd = levelEnd.AddSeconds(10.0);
+        StartCoroutine(GameLock(10f));
 
         //Calculate level rate values
         float secPerLevelSlope = (secPerLevelRange[1] - secPerLevelRange[0]) / peakLevel;
@@ -42,6 +43,12 @@ public class LevelDesigner : MonoBehaviour
 
             server.Send("OnLevelInfo|" + curLevInfo, server.GetUnreliableChannel());
         }
+    }
+
+    IEnumerator GameLock(float secToLock)
+    {
+        yield return new WaitForSeconds(secToLock);
+        server.gameLock = true;
     }
 
     public void CancelPlayMode()

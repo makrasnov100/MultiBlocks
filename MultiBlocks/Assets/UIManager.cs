@@ -163,7 +163,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateGameStart(TimeSpan ts)
     {
-        gameStartsCountdown.text = "Game Starts in " + Math.Round(ts.TotalSeconds, 2) + " seconds";
+        gameStartsCountdown.text = "Game Starts in " + Math.Round(ts.TotalSeconds, 2).ToString("#.##") + " seconds";
     }
 
     public void UpdateGameStart(string ts)

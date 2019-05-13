@@ -54,7 +54,7 @@ public class OnPlayerSetup : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT: OnPlayerSetup|cnnID,posx,posy,posz
+        //DATA FORMAT: OnPlayerSetup|cnnID,posx,posy,posz,roty
 
         Debug.Log("Starting Player Setup...");
 
@@ -68,9 +68,8 @@ public class OnPlayerSetup : NetworkClientAction
         DateTime curTime = System.DateTime.Now;
         client.Send("OnSyncTimeWithPlayer|" + curTime.Year + "," + curTime.Month + "," + curTime.Day + "," + curTime.Hour + "," + curTime.Minute + "," + curTime.Second + "," + curTime.Millisecond, client.GetUnreliableChannel());
 
-
         //Create and store refernce to player
-        GameObject curPlayerRef = GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerInfo[1]), float.Parse(playerInfo[2]), float.Parse(playerInfo[3])), new Quaternion());
+        GameObject curPlayerRef = GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerInfo[1]), float.Parse(playerInfo[2]), float.Parse(playerInfo[3])), Quaternion.Euler(new Vector3(0,float.Parse(playerInfo[4]),0)));
         ClientPlayer cp = new ClientPlayer(curPlayerRef);
         curPlayerRef.GetComponent<MovementController>().client = client;
         curPlayerRef.SetActive(false);

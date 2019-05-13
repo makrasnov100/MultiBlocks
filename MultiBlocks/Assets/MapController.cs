@@ -37,7 +37,7 @@ public class MapController : MonoBehaviour
     bool lvlCoroutineBegan = false;
 
     //Map Generation Settings
-    public int towerSize;
+    private int towerSize;
     public int levelsPresentAtOnce;
     public int sizePerBlock;
     public int sizePerLevel;
@@ -112,6 +112,7 @@ public class MapController : MonoBehaviour
         //Start Despawn of first Level
         levelWaitTimes.Dequeue();
         levels[curLevel - levelsPresentAtOnce].BeginDegradation();
+        CreateNewLevel();
         curLevel++;
 
         //Keep going through levels until none remain

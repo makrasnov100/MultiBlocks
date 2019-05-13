@@ -53,7 +53,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1122355816938168628}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
@@ -90,7 +90,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 131203610162821721}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1122355816938168628}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: ebfb95f4c95bb4d4289fca0c655e210a, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -148,6 +148,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8584019517707157194}
     m_Modifications:
+    - target: {fileID: 216329467976709795, guid: 8d2fb801551dcfb46993d0047794ac46,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 913605197700261215, guid: 8d2fb801551dcfb46993d0047794ac46,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -207,6 +212,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Tile
+      objectReference: {fileID: 0}
+    - target: {fileID: 5173574887795049300, guid: 8d2fb801551dcfb46993d0047794ac46,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5173574887795049300, guid: 8d2fb801551dcfb46993d0047794ac46,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5173574887795049300, guid: 8d2fb801551dcfb46993d0047794ac46,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8d2fb801551dcfb46993d0047794ac46, type: 3}

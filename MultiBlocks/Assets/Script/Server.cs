@@ -23,6 +23,7 @@ public class Server : MonoBehaviour
     private bool isStarted = false;
     private byte error;
     public bool canStartGame = true;
+    public bool gameLock = false;
 
     //Connected Players
     public List<ServerPlayer> clients = new List<ServerPlayer>();

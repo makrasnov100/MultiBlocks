@@ -52,8 +52,17 @@ public class MovementController : MonoBehaviour
 
     bool KeyboardInputCheck()
     {
-
+        //Checks all corners of square to allow movements and jumps even if tip is touching the ground
         isGrounded = Physics.Raycast(transform.position, Vector3.down, distToGround + 0.1f);
+        if(!isGrounded)
+            isGrounded = Physics.Raycast(transform.position + new Vector3(.5f,0,.5f), Vector3.down, distToGround + 0.1f);
+        if (!isGrounded)
+            isGrounded = Physics.Raycast(transform.position + new Vector3(-.5f, 0, -.5f), Vector3.down, distToGround + 0.1f);
+        if (!isGrounded)
+            isGrounded = Physics.Raycast(transform.position + new Vector3(-.5f, 0, .5f), Vector3.down, distToGround + 0.1f);
+        if (!isGrounded)
+            isGrounded = Physics.Raycast(transform.position + new Vector3(.5f, 0, -.5f), Vector3.down, distToGround + 0.1f);
+
         //Check for jump command
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true)
             if (rb)
@@ -73,10 +82,6 @@ public class MovementController : MonoBehaviour
         //Check current input of WASD keys (if holding down)
         float forceAmtZ = 0;
        float forceAmtX = 0;
-        //horizontal is forward/back
-        //vertical is left/right
-        
-
 
         float rotationAmt = 0;
 

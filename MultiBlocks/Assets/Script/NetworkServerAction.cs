@@ -161,7 +161,7 @@ public class OnPlayerReady : NetworkServerAction
 
                 server.Send("OnChangeReadyPlayers|1|-1", server.GetReliableChannel());
 
-                if (server.readyClientCount >= 1 && server.canStartGame)
+                if (server.readyClientCount >= 1 && server.canStartGame && !server.gameLock)
                 {
                     server.levelDesigner.StartMapGenerations();
                     server.canStartGame = false;
@@ -177,7 +177,7 @@ public class OnPlayerReady : NetworkServerAction
 
                 server.Send("OnChangeReadyPlayers|-1|-1", server.GetReliableChannel());
 
-                if (server.readyClientCount < 2)
+                if (server.readyClientCount < 2 && !server.gameLock)
                 {
                     server.levelDesigner.CancelPlayMode();
                     server.canStartGame = true;

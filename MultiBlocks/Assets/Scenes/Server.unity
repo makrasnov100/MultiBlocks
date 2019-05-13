@@ -143,6 +143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canStartGame: 1
+  gameLock: 0
   clients: []
   readyClientCount: 0
   levelDesigner: {fileID: 1651486038}
@@ -175,10 +176,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1651486036}
   secPerLevelRange:
-  - 30
-  - 10
+  - 20
+  - 5
   levelGoneRange:
-  - 40
-  - 80
-  peakLevel: 10
-  towerSize: 36
+  - 60
+  - 90
+  peakLevel: 20
+  towerSize: 40
