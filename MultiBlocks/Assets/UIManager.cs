@@ -8,8 +8,9 @@ using System;
 public class UIManager : MonoBehaviour
 {
     public Client client;
+    public List<Texture> modelImages = new List<Texture>();
 
-    //UI References
+    //UI References (Initial)
     // - output
     public GameObject InitMenu;
     public Image bg;
@@ -19,10 +20,15 @@ public class UIManager : MonoBehaviour
     public TMP_Text latency;
     public Button readyBtn;
     public Button notReadyBtn;
+    public RawImage modelImage;
     // - input
     public TMP_InputField nameInput;
     public Dropdown modelInput;
 
+    //UI References (InGame)
+    // - output
+    public GameObject InGameMenu;
+    public TMP_Text ultraJumpsOutput;
 
     //Instance Variables
     bool initMenuActive = true;
@@ -103,8 +109,16 @@ public class UIManager : MonoBehaviour
             readyBtn.gameObject.SetActive(false);
             notReadyBtn.gameObject.SetActive(true);
 
+            //Chosen model derivation
+            int chosenModel = 0;
+            if (modelInput.value == 2)
+                chosenModel = UnityEngine.Random.Range(0, 2);
+            else
+                chosenModel = modelInput.value;
+            
+
             //Send Ready Info to Server
-            client.Send("OnPlayerReady|1", client.GetReliableChannel());
+            client.Send("OnPlayerReady|1|" + nameInput.text + "|" + chosenModel, client.GetReliableChannel());
 
         }
         else
@@ -169,6 +183,11 @@ public class UIManager : MonoBehaviour
     public void UpdateGameStart(string ts)
     {
         gameStartsCountdown.text = ts;
+    }
+
+    public void UpdateModelImage()
+    {
+        modelImage.texture = modelImages[modelInput.value];
     }
 }
 

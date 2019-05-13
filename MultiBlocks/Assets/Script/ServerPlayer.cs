@@ -16,7 +16,11 @@ public class ServerPlayer
     private float positionZ;    
     private float rotationZ;
 
-    public ServerPlayer(int connectionId, Vector3 spawnPoint)
+    public string name;
+    public int model;
+
+
+    public ServerPlayer(int connectionId, Vector3 spawnPoint, string name, int model)
     {
         isReady = false;
         this.connectionId = connectionId;
@@ -24,6 +28,9 @@ public class ServerPlayer
         this.positionY = spawnPoint.y;
         this.positionZ = spawnPoint.z;
         this.rotationZ = 0f;
+
+        this.name = name;
+        this.model = model;
     }
     public void SetTransform(string x, string y, string z, string rz)
     {
@@ -47,6 +54,12 @@ public class ServerPlayer
         return result;
     }
 
+    public void isReadyUpdate(bool isReady, string name, int model)
+    {
+        this.isReady = isReady;
+        this.name = name;
+        this.model = model;
+    }
 }
 
 

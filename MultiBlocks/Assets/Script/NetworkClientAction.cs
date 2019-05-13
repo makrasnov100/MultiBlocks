@@ -54,7 +54,7 @@ public class OnPlayerSetup : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT: OnPlayerSetup|cnnID,posx,posy,posz,roty
+        //DATA FORMAT: OnPlayerSetup|cnnID,posx,posy,posz,roty,name,model#
 
         Debug.Log("Starting Player Setup...");
 
@@ -70,7 +70,7 @@ public class OnPlayerSetup : NetworkClientAction
 
         //Create and store refernce to player
         GameObject curPlayerRef = GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerInfo[1]), float.Parse(playerInfo[2]), float.Parse(playerInfo[3])), Quaternion.Euler(new Vector3(0,float.Parse(playerInfo[4]),0)));
-        ClientPlayer cp = new ClientPlayer(curPlayerRef);
+        ClientPlayer cp = new ClientPlayer(curPlayerRef, playerInfo[5], int.Parse(playerInfo[6]));
         curPlayerRef.GetComponent<MovementController>().client = client;
         curPlayerRef.SetActive(false);
 
@@ -86,14 +86,14 @@ public class OnNewPlayers : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT : OnNewPlayers|cnnId|playerPosX,playerPosY,playerPosZ,playerRot
+        //DATA FORMAT : OnNewPlayers|cnnId|playerPosX,playerPosY,playerPosZ,playerRot|name|mode#
 
         if (int.Parse(data[1]) == client.GetOurClientID()) //If it is our player, return
             return;
 
         string[] playerPos = data[2].Split(',');
         //Add the foreign player object to scene
-        ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerPos[0]), float.Parse(playerPos[1]), float.Parse(playerPos[2])), new Quaternion()));
+        ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab, new Vector3(float.Parse(playerPos[0]), float.Parse(playerPos[1]), float.Parse(playerPos[2])), new Quaternion()),data[3], int.Parse(data[4]));
         cp.playerRef.GetComponent<MovementController>().enabled = false;
         cp.playerRef.GetComponentInChildren<Camera>().enabled = false;
         GameObject.Destroy(cp.playerRef.GetComponent<Rigidbody>());
@@ -108,7 +108,7 @@ public class OnLoadExistingPlayers : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT : OnLoadExistingPlayers|cnnId,posX,posY,posZ,rotationZ|Other players...
+        //DATA FORMAT : OnLoadExistingPlayers|cnnId,posX,posY,posZ,rotationZ,name,model#|Other players...
 
         //Fix Me: Add a queue of player that are needed to be loaded in
         for (int i = 1; i < data.Length; i++)
@@ -119,7 +119,7 @@ public class OnLoadExistingPlayers : NetworkClientAction
                 continue;
 
             //Add the foreign player object to scene    
-            ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab));
+            ClientPlayer cp = new ClientPlayer(GameObject.Instantiate(client.playerPrefab), curUser[5], int.Parse(curUser[6]));
             cp.playerRef.GetComponent<MovementController>().enabled = false;
             cp.playerRef.GetComponentInChildren<Camera>().enabled = false;
             GameObject.Destroy(cp.playerRef.GetComponent<Rigidbody>());
@@ -136,9 +136,17 @@ public class OnChangeReadyPlayers : NetworkClientAction
 
     public override void PerformAction(string[] data)
     {
-        //DATA FORMAT : OnChangeReadyPlayers|amountChanged
+        //DATA FORMAT : OnChangeReadyPlayers|amountChanged|cnnId(that changed)|new name|new model 
 
         client.uiCont.ChangeReadyPlayers(int.Parse(data[1]));
+
+        //If new ready information update the referenced player
+        if (int.Parse(data[1]) == 1)
+        {
+            ClientPlayer readyPlayer = client.players[int.Parse(data[2])];
+            readyPlayer.name = data[3];
+            readyPlayer.model = int.Parse(data[4]);
+        }
     }
 }
 

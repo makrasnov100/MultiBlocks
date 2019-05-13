@@ -26,6 +26,9 @@ public class MovementController : MonoBehaviour
     public bool isGrounded;
     public float distToGround;
 
+    //Instance Variables
+    public int ultraJumpsRemaining = 10;
+
     private void Start()
     {
         pastPos = transform.position;
@@ -64,10 +67,24 @@ public class MovementController : MonoBehaviour
             isGrounded = Physics.Raycast(transform.position + new Vector3(.5f, 0, -.5f), Vector3.down, distToGround + 0.1f);
 
         //Check for jump command
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true)
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             if (rb)
-                rb.AddForce(body.transform.up * rb.mass * jumpPower);
+            {
+                if (isGrounded == true)
+                {
+                    rb.AddForce(body.transform.up * rb.mass * jumpPower);
+                }
+                else if (ultraJumpsRemaining != 0)
+                {
+                    ultraJumpsRemaining--;
+                    client.uiCont.ultraJumpsOutput.text = "Ultra Jumps Remaining: " + ultraJumpsRemaining;
 
+                    rb.AddForce(body.transform.up * rb.mass * jumpPower);
+                }
+            }
+        }
+           
         //Check for ESC
         if (Input.GetKeyDown(KeyCode.Escape))
         {

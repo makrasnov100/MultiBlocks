@@ -50,6 +50,8 @@ public class MapController : MonoBehaviour
     Queue<float> levelWaitTimes = new Queue<float>();
     private int curLevel = 0;
 
+    //Body List
+    public List<GameObject> bodyPrefabs = new List<GameObject>();
 
     void Awake()
     {
@@ -90,12 +92,27 @@ public class MapController : MonoBehaviour
         }
 
         //Spawn in all players
-        client.ourPlayer.playerRef.SetActive(true);
         foreach (KeyValuePair<int, ClientPlayer> cp in client.players)
-            cp.Value.playerRef.SetActive(true);
+        {
+            cp.Value.SpawnIntoGame();
 
-        //Disable UI
+            GameObject playerRef = cp.Value.playerRef;
+            //Have to do here because client player cant be monobehavior
+            Transform curBody = playerRef.transform.Find("Body");
+            float curBodyRotY = curBody.rotation.y;
+            if (curBody != null)
+                GameObject.Destroy(curBody.gameObject);
+
+            GameObject newBody = GameObject.Instantiate(bodyPrefabs[cp.Value.model], playerRef.transform);
+            newBody.name = "Body";
+            playerRef.GetComponent<MovementController>().body = newBody;
+            newBody.transform.rotation = Quaternion.Euler(new Vector3(0, curBodyRotY, 0));
+        }
+
+        //Disable UI and our nametag on our side
         client.uiCont.InitMenu.SetActive(false);
+        client.uiCont.InGameMenu.SetActive(true);
+        client.ourPlayer.playerRef.transform.Find("NameTag").gameObject.SetActive(false);
 
         isStarted = true;
 

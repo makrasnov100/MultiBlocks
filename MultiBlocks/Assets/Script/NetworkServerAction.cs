@@ -66,7 +66,7 @@ public class OnConnect : NetworkServerAction
 
         //Add player to storage
         server.curSpawnPos = new Vector3(server.curSpawnPos.x + 2, server.curSpawnPos.y, server.curSpawnPos.z);
-        sp = new ServerPlayer(cnnId, server.curSpawnPos);
+        sp = new ServerPlayer(cnnId, server.curSpawnPos, "Unnamed", 1);
         addUser(server.clients, server.clientIdxs, sp);
 
         //Calculate spawn position
@@ -82,17 +82,17 @@ public class OnConnect : NetworkServerAction
         server.Send("OnChangeReadyPlayers|" + server.readyClientCount, server.GetReliableChannel(), cnnId);
 
         //Tells joining player about itself
-        string msg = "OnPlayerSetup|" + cnnId + "," + sp.GetStringTransform();
+        string msg = "OnPlayerSetup|" + cnnId + "," + sp.GetStringTransform() + "," + sp.name + "," + sp.model;
         server.Send(msg, server.GetReliableChannel(), cnnId);
 
         //Tell joining player about old players
         string msg2 = "OnLoadExistingPlayers";
         foreach (ServerPlayer sp1 in server.clients)
-            msg2 += "|" + sp1.connectionId + "," + sp1.GetStringTransform();
+            msg2 += "|" + sp1.connectionId + "," + sp1.GetStringTransform() + "," + sp1.name + "," + sp1.model;
         server.Send(msg2, server.GetReliableChannel(), cnnId);
 
         //Tell old players about new player
-        string msg3 = "OnNewPlayers|" + cnnId + "|" + sp.GetStringTransform();
+        string msg3 = "OnNewPlayers|" + cnnId + "|" + sp.GetStringTransform() + "|" + sp.name + "|" + sp.model;
         server.Send(msg3, server.GetReliableChannel());
     }
 }
@@ -150,18 +150,19 @@ public class OnPlayerReady : NetworkServerAction
 
     public override void PerformAction(string[] data, int cnnId)
     {
-        //DATA FORMAT: OnPlayerReady|1-true OR 0-false
+        //DATA FORMAT: OnPlayerReady|1-true OR 0-false|if 1 - name| if 1 - model idx
 
         if (int.Parse(data[1]) == 1)
         {
             if (!server.clients[server.clientIdxs[cnnId]].isReady)
             {
-                server.clients[server.clientIdxs[cnnId]].isReady = true;
+
+                server.clients[server.clientIdxs[cnnId]].isReadyUpdate(true, data[2], int.Parse(data[3]));
                 server.readyClientCount++;
 
-                server.Send("OnChangeReadyPlayers|1|-1", server.GetReliableChannel());
+                server.Send("OnChangeReadyPlayers|1|" + cnnId + "|" + data[2] + "|" + data[3], server.GetReliableChannel());
 
-                if (server.readyClientCount >= 2 && server.canStartGame && !server.gameLock)
+                if (server.readyClientCount >= 1 && server.canStartGame && !server.gameLock)
                 {
                     server.levelDesigner.StartMapGenerations();
                     server.canStartGame = false;
@@ -175,10 +176,11 @@ public class OnPlayerReady : NetworkServerAction
                 server.clients[server.clientIdxs[cnnId]].isReady = false;
                 server.readyClientCount--;
 
-                server.Send("OnChangeReadyPlayers|-1|-1", server.GetReliableChannel());
+                server.Send("OnChangeReadyPlayers|-1", server.GetReliableChannel());
 
                 if (server.readyClientCount < 2 && !server.gameLock)
                 {
+                    server.levelDesigner.StopAllCoroutines();
                     server.levelDesigner.CancelPlayMode();
                     server.canStartGame = true;
                 }
