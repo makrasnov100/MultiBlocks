@@ -106,7 +106,15 @@ public class MapController : MonoBehaviour
             GameObject newBody = GameObject.Instantiate(bodyPrefabs[cp.Value.model], playerRef.transform);
             newBody.name = "Body";
             playerRef.GetComponent<MovementController>().body = newBody;
-            newBody.transform.rotation = Quaternion.Euler(new Vector3(0, curBodyRotY, 0));
+            if (cp.Value.model == 1)
+            {
+                newBody.transform.rotation = Quaternion.Euler(new Vector3(-90, curBodyRotY, 0));
+            }
+            else
+            {
+                newBody.transform.rotation = Quaternion.Euler(new Vector3(0, curBodyRotY, 0));
+            }
+
         }
 
         //Disable UI and our nametag on our side

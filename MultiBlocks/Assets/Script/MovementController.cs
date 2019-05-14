@@ -134,6 +134,13 @@ public class MovementController : MonoBehaviour
             {
                 Vector3 newRot = body.transform.eulerAngles;
                 newRot.y += rotationAmt * Time.deltaTime * rotationSpeed;
+                if (client.ourPlayer.model == 1)
+                {
+                    newRot.x = -90;
+                    newRot.y -= 90;
+                }
+
+
                 body.transform.eulerAngles = newRot;
             }
         }
