@@ -33,7 +33,7 @@ public class MapController : MonoBehaviour
     Queue<GameObject> tilePool = new Queue<GameObject>();
 
     //Start Settings
-    bool isStarted = false;
+    public bool isStarted = false;
     bool lvlCoroutineBegan = false;
 
     //Map Generation Settings
@@ -91,6 +91,13 @@ public class MapController : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
+        //Disable UI and our nametag on our side
+        client.uiCont.InitMenu.SetActive(false);
+        client.uiCont.InGameMenu.SetActive(true);
+        client.ourPlayer.playerRef.transform.Find("NameTag").gameObject.SetActive(false);
+
+        isStarted = true;
+
         //Spawn in all players
         foreach (KeyValuePair<int, ClientPlayer> cp in client.players)
         {
@@ -106,23 +113,9 @@ public class MapController : MonoBehaviour
             GameObject newBody = GameObject.Instantiate(bodyPrefabs[cp.Value.model], playerRef.transform);
             newBody.name = "Body";
             playerRef.GetComponent<MovementController>().body = newBody;
-            if (cp.Value.model == 1)
-            {
-                newBody.transform.rotation = Quaternion.Euler(new Vector3(-90, curBodyRotY, 0));
-            }
-            else
-            {
-                newBody.transform.rotation = Quaternion.Euler(new Vector3(0, curBodyRotY, 0));
-            }
-
+            client.uiCont.StartLeaderboards();
+            newBody.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
         }
-
-        //Disable UI and our nametag on our side
-        client.uiCont.InitMenu.SetActive(false);
-        client.uiCont.InGameMenu.SetActive(true);
-        client.ourPlayer.playerRef.transform.Find("NameTag").gameObject.SetActive(false);
-
-        isStarted = true;
 
         //Create the first set of levels
         for (int i = 0; i < levelsPresentAtOnce; i++)

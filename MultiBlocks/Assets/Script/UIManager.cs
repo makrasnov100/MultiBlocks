@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
@@ -29,7 +30,10 @@ public class UIManager : MonoBehaviour
     // - output
     public GameObject InGameMenu;
     public TMP_Text ultraJumpsOutput;
-
+    public TMP_Text place1;
+    public TMP_Text place2;
+    public TMP_Text place3;
+    public TMP_Text place4;
     //Instance Variables
     bool initMenuActive = true;
     int readyPlayers = 0;
@@ -61,6 +65,55 @@ public class UIManager : MonoBehaviour
 
             if ((Time.time - (float)transitionStart) > timePerTransition)
                 UpdateTargetBGColor();
+        }
+    }
+
+    //Updates the leaderboards of players in the game
+    IEnumerator LeaderBoardsUpdate()
+    {
+        if (client.players.Count < 4)
+            place4.gameObject.SetActive(false);
+        if (client.players.Count < 3)
+            place3.gameObject.SetActive(false);
+        if (client.players.Count < 2)
+            place2.gameObject.SetActive(false);
+
+
+        while (client.mapCont.isStarted)
+        {
+            List<ClientPlayer> sortedList = new List<ClientPlayer>();
+            sortedList.AddRange(client.players.Values);
+            sortedList = sortedList.OrderBy(o => o.playerRef.transform.position.y).ToList();
+
+            //Display the top three players
+            if (sortedList.Count > 0 && sortedList[sortedList.Count-1].playerRef.transform.position.y > -1)
+            {
+                place1.text = "1st: " + sortedList[sortedList.Count-1].name + " | " + (int) sortedList[sortedList.Count-1].playerRef.transform.position.y;
+                sortedList.RemoveAt(sortedList.Count - 1);
+            }
+            if (sortedList.Count > 0 && sortedList[sortedList.Count-1].playerRef.transform.position.y > -1)
+            {
+                place2.text = "2nd: " + sortedList[sortedList.Count-1].name + " | " + (int) sortedList[sortedList.Count-1].playerRef.transform.position.y;
+                sortedList.RemoveAt(sortedList.Count - 1);
+            }
+            if (sortedList.Count > 0 && sortedList[sortedList.Count-1].playerRef.transform.position.y > -1)
+            {
+                place3.text = "3rd: " + sortedList[sortedList.Count-1].name + " | " + (int) sortedList[sortedList.Count-1].playerRef.transform.position.y;
+                sortedList.RemoveAt(sortedList.Count - 1);
+            }   
+
+            //Display all other players
+            string otherPlayers = "";
+            int additionalPlayersCount = 0;
+            while (sortedList.Count >= (additionalPlayersCount+1) && additionalPlayersCount < 5 && sortedList[sortedList.Count - additionalPlayersCount - 1].playerRef.transform.position.y > -1)
+            {
+                otherPlayers += (4 + additionalPlayersCount) + ": " + sortedList[sortedList.Count-additionalPlayersCount-1].name + " | " + (int) sortedList[sortedList.Count - additionalPlayersCount - 1].playerRef.transform.position.y + System.Environment.NewLine;
+                sortedList.RemoveAt(sortedList.Count - 1);
+                additionalPlayersCount++;
+            }
+            place4.text = otherPlayers;
+
+            yield return new WaitForSeconds(.5f);
         }
     }
 
@@ -188,6 +241,11 @@ public class UIManager : MonoBehaviour
     public void UpdateModelImage()
     {
         modelImage.texture = modelImages[modelInput.value];
+    }
+
+    public void StartLeaderboards()
+    {
+        StartCoroutine(LeaderBoardsUpdate());
     }
 }
 

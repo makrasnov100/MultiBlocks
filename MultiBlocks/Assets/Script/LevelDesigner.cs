@@ -21,8 +21,8 @@ public class LevelDesigner : MonoBehaviour
     {
         gameStartTime = DateTime.Now;
         DateTime levelEnd = DateTime.Now;
-        levelEnd = levelEnd.AddSeconds(10.0);
-        StartCoroutine(GameLock(10f));
+        levelEnd = levelEnd.AddSeconds(40.0);
+        StartCoroutine(GameLock(40f));
 
         //Calculate level rate values
         float secPerLevelSlope = (secPerLevelRange[1] - secPerLevelRange[0]) / peakLevel;
