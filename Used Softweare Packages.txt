@@ -1,0 +1,13 @@
+
+List of all used software/graphics pakages
+
+[SOFTWARE]
+IDE (Visual Studio IDE): https://visualstudio.microsoft.com/vs/
+Game Engine (Unity): https://unity.com/
+3D Modeling/Texturing (Blender): https://www.blender.org/
+UI Editing (Photoshop):  https://www.adobe.com/creativecloud.html
+
+[UNITY ASSETS]
+Clear UI text (Text Mesh Pro): https://assetstore.unity.com/packages/essentials/beta-projects/textmesh-pro-84126
+Animated Skybox: https://assetstore.unity.com/packages/vfx/shaders/free-skybox-cubemap-extended-107400
+Camera Effects: https://assetstore.unity.com/packages/essentials/post-processing-stack-83912
